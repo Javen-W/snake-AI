@@ -39,6 +39,11 @@ class Snake:
             print(text)
         return text
 
+    def draw(self):
+        pygame.draw.rect(screen, self.color, self.rect)
+        if self.tail_snake:
+            self.tail_snake.draw()
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -72,7 +77,7 @@ while frame < 1000:
 
     # draw & display current frame
     screen.fill(COLOR_BLACK)
-    pygame.draw.rect(screen, snake.color, snake.rect)
+    snake.draw()
     pygame.display.flip()
 
     # event listeners
@@ -83,7 +88,7 @@ while frame < 1000:
     # move snake
     snake.move(direction=next_dir)
 
-    if frame == 10:
+    if frame % 10 == 0:
         snake.grow()
 
     # decide next direction
