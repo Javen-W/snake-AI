@@ -57,6 +57,12 @@ class Snake:
             return (head_coords == tail_coords) or self.tail_snake.on_self(head_coords=head_coords)
         return False
 
+    def on_wall(self):
+        return self.rect.left < 0 or \
+            self.rect.right > SCREEN_WIDTH or \
+            self.rect.top < 0 or \
+            self.rect.bottom > SCREEN_HEIGHT
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -79,6 +85,7 @@ VELOCITIES = {
 frame = 0
 screen = pygame.display.set_mode(SCREEN_SIZE)
 snake = Snake(start_coords=START_COORDS, head_snake=None)
+is_alive = True
 next_dir = 'south-west'
 
 # play
@@ -101,6 +108,12 @@ while frame < 1000:
     # move snake
     snake.move(direction=next_dir)
 
+    # did the snake collide with itself?
+    if snake.on_self() or snake.on_wall():
+        is_alive = False
+        break
+
+    # eat & grow
     if frame % 10 == 0:
         snake.grow()
 
