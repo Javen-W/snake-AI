@@ -44,6 +44,11 @@ class Snake:
         if self.tail_snake:
             self.tail_snake.draw()
 
+    def size(self):
+        if self.tail_snake:
+            return 1 + self.tail_snake.size()
+        return 1
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -71,8 +76,8 @@ next_dir = 'south-west'
 # play
 while frame < 1000:
     snake.print()
-    print("Frame: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
-        frame, next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
+    print("Frame: {} | Size: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
+        frame, snake.size(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
 
     # draw & display current frame
