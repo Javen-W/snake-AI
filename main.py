@@ -4,6 +4,16 @@ import pygame
 import random
 pygame.init()
 
+
+class Snake:
+    def __init__(self, start_coords, prev_snake, next_dir):
+        self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
+        self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
+        self.next_dir = next_dir
+        self.prev_snake = prev_snake
+        self.next_snake = None
+
+
 # constants
 COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
@@ -23,19 +33,18 @@ VELOCITIES = {
 
 # game vars
 frame = 0
-direction = 'south-west'
 screen = pygame.display.set_mode(SCREEN_SIZE)
-snake_rect = pygame.Rect(START_COORDS, (BLOCK_SIZE, BLOCK_SIZE))
+snake = Snake(start_coords=START_COORDS, prev_snake=None, next_dir='south-west')
 
 # play
 while frame < 1000:
     print("Frame: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
-        frame, direction, snake_rect.left, snake_rect.right, snake_rect.top, snake_rect.bottom)
+        frame, snake.next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
 
     # draw & display current frame
     screen.fill(COLOR_BLACK)
-    pygame.draw.rect(screen, COLOR_WHITE, snake_rect)
+    pygame.draw.rect(screen, snake.color, snake.rect)
     pygame.display.flip()
 
     # event listeners
@@ -43,17 +52,17 @@ while frame < 1000:
         if event.type == pygame.QUIT: sys.exit()
 
     # move snake
-    snake_rect = snake_rect.move(VELOCITIES[direction])
+    snake.rect = snake.rect.move(VELOCITIES[snake.next_dir])
 
     # decide next direction
-    if snake_rect.left <= 0:
-        direction = random.choice(['south-west', 'north-west', 'west'])
-    if snake_rect.right >= SCREEN_WIDTH:
-        direction = random.choice(['south-east', 'north-east', 'east'])
-    if snake_rect.top <= 0:
-        direction = random.choice(['south-west', 'south-east', 'south'])
-    if snake_rect.bottom >= SCREEN_HEIGHT:
-        direction = random.choice(['north-west', 'north-east', 'north'])
+    if snake.rect.left <= 0:
+        snake.next_dir = random.choice(['south-west', 'north-west', 'west'])
+    if snake.rect.right >= SCREEN_WIDTH:
+        snake.next_dir = random.choice(['south-east', 'north-east', 'east'])
+    if snake.rect.top <= 0:
+        snake.next_dir = random.choice(['south-west', 'south-east', 'south'])
+    if snake.rect.bottom >= SCREEN_HEIGHT:
+        snake.next_dir = random.choice(['north-west', 'north-east', 'north'])
 
     # advance frame
     frame += 1
