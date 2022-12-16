@@ -1,6 +1,7 @@
 import sys
 from time import sleep
 import pygame
+import random
 pygame.init()
 
 # constants
@@ -12,8 +13,8 @@ START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
-    'north': [0, BLOCK_SIZE],
-    'south': [0, -BLOCK_SIZE],
+    'north': [0, -BLOCK_SIZE],
+    'south': [0, BLOCK_SIZE],
     'north-west': [BLOCK_SIZE, -BLOCK_SIZE],
     'north-east': [-BLOCK_SIZE, -BLOCK_SIZE],
     'south-west': [BLOCK_SIZE, BLOCK_SIZE],
@@ -22,14 +23,14 @@ VELOCITIES = {
 
 # game vars
 frame = 0
-velocity = VELOCITIES['south-west']
+direction = 'south-west'
 screen = pygame.display.set_mode(SCREEN_SIZE)
 snake_rect = pygame.Rect(START_COORDS, (BLOCK_SIZE, BLOCK_SIZE))
 
 # play
-while frame < 100:
-    print("Frame: {} | Left: {} | Right: {} | Top: {} | Bottom: {}".format(
-        frame, snake_rect.left, snake_rect.right, snake_rect.top, snake_rect.bottom)
+while frame < 1000:
+    print("Frame: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
+        frame, direction, snake_rect.left, snake_rect.right, snake_rect.top, snake_rect.bottom)
     )
 
     # draw & display current frame
@@ -42,11 +43,17 @@ while frame < 100:
         if event.type == pygame.QUIT: sys.exit()
 
     # move snake
-    snake_rect = snake_rect.move(velocity)
-    if snake_rect.left <= 0 or snake_rect.right >= SCREEN_WIDTH:
-        velocity[0] = -velocity[0]
-    if snake_rect.top <= 0 or snake_rect.bottom >= SCREEN_HEIGHT:
-        velocity[1] = -velocity[1]
+    snake_rect = snake_rect.move(VELOCITIES[direction])
+
+    # decide next direction
+    if snake_rect.left <= 0:
+        direction = random.choice(['south-west', 'north-west', 'west', 'south', 'north'])
+    if snake_rect.right >= SCREEN_WIDTH:
+        direction = random.choice(['south-east', 'north-east', 'east', 'south', 'north'])
+    if snake_rect.top <= 0:
+        direction = random.choice(['south-west', 'south-east', 'south', 'west', 'east'])
+    if snake_rect.bottom >= SCREEN_HEIGHT:
+        direction = random.choice(['north-west', 'north-east', 'north', 'west', 'east'])
 
     # advance frame
     frame += 1
