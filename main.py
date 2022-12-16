@@ -28,6 +28,15 @@ class Snake:
                 self.tail_snake.move(self.prev_dir)
             self.prev_dir = direction
 
+    def print(self):
+        text = "<>~"
+        if self.tail_snake:
+            text += self.tail_snake.print()
+        if not self.head_snake:
+            text = "~8~" + text
+            print(text)
+        return text
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -54,6 +63,7 @@ next_dir = 'south-west'
 
 # play
 while frame < 1000:
+    snake.print()
     print("Frame: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
         frame, next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
