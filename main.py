@@ -1,25 +1,27 @@
 import sys
 from time import sleep
-
 import pygame
 pygame.init()
 
+# constants
 COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
+BLOCK_SIZE = 30
+SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 
-size = width, height = 600, 600
-speed = [30, 0]
+# game vars
 frame = 0
+velocity = [BLOCK_SIZE, BLOCK_SIZE]
+screen = pygame.display.set_mode(SCREEN_SIZE)
+snake_rect = pygame.Rect(120, 120, BLOCK_SIZE, BLOCK_SIZE)
 
-screen = pygame.display.set_mode(size)
-snake_rect = pygame.Rect(120, 120, 30, 30)
-
+# play
 while frame < 100:
     print("Frame: {} | Left: {} | Right: {} | Top: {} | Bottom: {}".format(
         frame, snake_rect.left, snake_rect.right, snake_rect.top, snake_rect.bottom)
     )
 
-    # display current frame
+    # draw & display current frame
     screen.fill(COLOR_BLACK)
     pygame.draw.rect(screen, COLOR_WHITE, snake_rect)
     pygame.display.flip()
@@ -28,14 +30,14 @@ while frame < 100:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
 
-    # move
-    snake_rect = snake_rect.move(speed)
-    if snake_rect.left <= 0 or snake_rect.right >= width:
-        speed[0] = -speed[0]
-    if snake_rect.top <= 0 or snake_rect.bottom >= height:
-        speed[1] = -speed[1]
+    # move snake
+    snake_rect = snake_rect.move(velocity)
+    if snake_rect.left <= 0 or snake_rect.right >= SCREEN_WIDTH:
+        velocity[0] = -velocity[0]
+    if snake_rect.top <= 0 or snake_rect.bottom >= SCREEN_HEIGHT:
+        velocity[1] = -velocity[1]
 
     # advance frame
     frame += 1
-    sleep(0.5)
+    sleep(0.25)
 
