@@ -11,7 +11,7 @@ class Snake:
         self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
         self.head_snake = head_snake
         self.tail_snake = None
-        self.prev_dir = None
+        self.prev_dir = None  # TODO replace this with just prev_coords
         self.prev_coords = None
 
     def grow(self):
@@ -49,6 +49,14 @@ class Snake:
             return 1 + self.tail_snake.size()
         return 1
 
+    def on_self(self, head_coords=None):
+        if not head_coords:
+            head_coords = (self.rect.left, self.rect.top)
+        if self.tail_snake:
+            tail_coords = (self.tail_snake.rect.left, self.tail_snake.rect.top)
+            return (head_coords == tail_coords) or self.tail_snake.on_self(head_coords=head_coords)
+        return False
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -76,8 +84,8 @@ next_dir = 'south-west'
 # play
 while frame < 1000:
     snake.print()
-    print("Frame: {} | Size: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
-        frame, snake.size(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
+    print("Frame: {} | Size: {} | On-self: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
+        frame, snake.size(), snake.on_self(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
 
     # draw & display current frame
