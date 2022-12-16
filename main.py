@@ -47,13 +47,13 @@ while frame < 1000:
 
     # decide next direction
     if snake_rect.left <= 0:
-        direction = random.choice(['south-west', 'north-west', 'west', 'south', 'north'])
+        direction = random.choice(['south-west', 'north-west', 'west'])
     if snake_rect.right >= SCREEN_WIDTH:
-        direction = random.choice(['south-east', 'north-east', 'east', 'south', 'north'])
+        direction = random.choice(['south-east', 'north-east', 'east'])
     if snake_rect.top <= 0:
-        direction = random.choice(['south-west', 'south-east', 'south', 'west', 'east'])
+        direction = random.choice(['south-west', 'south-east', 'south'])
     if snake_rect.bottom >= SCREEN_HEIGHT:
-        direction = random.choice(['north-west', 'north-east', 'north', 'west', 'east'])
+        direction = random.choice(['north-west', 'north-east', 'north'])
 
     # advance frame
     frame += 1
