@@ -9,9 +9,10 @@ class Snake:
     def __init__(self, start_coords, head_snake):
         self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
         self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
-        self.prev_dir = None
         self.head_snake = head_snake
         self.tail_snake = None
+        self.prev_dir = None
+        self.prev_coords = None
 
     def grow(self):
         if self.tail_snake:
@@ -19,10 +20,11 @@ class Snake:
             self.tail_snake.grow()
         else:
             # this is the last snake
-            self.tail_snake = Snake(start_coords=(self.rect.left, self.rect.top), head_snake=self)
+            self.tail_snake = Snake(start_coords=self.prev_coords, head_snake=self)
 
     def move(self, direction):
         if direction:
+            self.prev_coords = (self.rect.left, self.rect.top)
             self.rect = self.rect.move(VELOCITIES[direction])
             if self.tail_snake:
                 self.tail_snake.move(self.prev_dir)
@@ -80,6 +82,9 @@ while frame < 1000:
 
     # move snake
     snake.move(direction=next_dir)
+
+    if frame == 10:
+        snake.grow()
 
     # decide next direction
     if snake.rect.left <= 0:
