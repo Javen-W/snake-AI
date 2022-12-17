@@ -142,9 +142,10 @@ while frame < 1000:
         is_alive = False
         # break
 
-    # eat & grow
-    if frame % 10 == 0:
+    # did the snake eat the fruit?
+    if snake.on_fruit():
         snake.grow()
+        fruit = None
 
     # decide next direction
     if snake.rect.left <= 0:
