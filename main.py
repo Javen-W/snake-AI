@@ -5,6 +5,16 @@ import random
 pygame.init()
 
 
+class Fruit:
+    def __init__(self):
+        random_coords = (random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT))
+        self.rect = pygame.Rect(random_coords, (BLOCK_SIZE, BLOCK_SIZE))
+        self.color = (255, 0, 0)
+
+    def draw(self):
+        pygame.draw.rect(screen, self.color, self.rect)
+
+
 class Snake:
     def __init__(self, start_coords, head_snake):
         self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
@@ -110,6 +120,7 @@ while frame < 1000:
 
     # did the snake collide with itself?
     if snake.on_self() or snake.on_wall():
+        print("Snake died.")
         is_alive = False
         break
 
