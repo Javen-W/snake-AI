@@ -73,6 +73,13 @@ class Snake:
             self.rect.top < 0 or \
             self.rect.bottom > SCREEN_HEIGHT
 
+    def on_fruit(self):
+        fruit_coords = (fruit.rect.left, fruit.rect.top)
+        snake_coords = (self.rect.left, self.rect.top)
+        if self.tail_snake:
+            return snake_coords == fruit_coords or self.tail_snake.on_fruit()
+        return snake_coords == fruit_coords
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -95,6 +102,7 @@ VELOCITIES = {
 frame = 0
 screen = pygame.display.set_mode(SCREEN_SIZE)
 snake = Snake(start_coords=START_COORDS, head_snake=None)
+fruit = None
 is_alive = True
 next_dir = 'south-west'
 
@@ -105,9 +113,16 @@ while frame < 1000:
         frame, snake.size(), snake.on_self(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
 
+    # spawn fruit
+    if not fruit:
+        fruit = Fruit()
+        while snake.on_fruit():
+            fruit = Fruit()
+
     # draw & display current frame
     screen.fill(COLOR_BLACK)
     snake.draw()
+    fruit.draw()
     pygame.display.flip()
 
     # event listeners
@@ -122,7 +137,7 @@ while frame < 1000:
     if snake.on_self() or snake.on_wall():
         print("Snake died.")
         is_alive = False
-        break
+        # break
 
     # eat & grow
     if frame % 10 == 0:
