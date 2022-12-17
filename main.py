@@ -7,7 +7,10 @@ pygame.init()
 
 class Fruit:
     def __init__(self):
-        random_coords = (random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT))
+        random_coords = (
+            random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
+            random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
+        )
         self.rect = pygame.Rect(random_coords, (BLOCK_SIZE, BLOCK_SIZE))
         self.color = (255, 0, 0)
 
