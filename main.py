@@ -27,6 +27,7 @@ def pick_random_direction():
         return random.choice(['south-west', 'south-east', 'south'])
     if snake.rect.bottom >= SCREEN_HEIGHT:
         return random.choice(['north-west', 'north-east', 'north'])
+    return random.choice(['north', 'south', 'west', 'east'])
 
 
 class Brain:
@@ -46,6 +47,9 @@ class Snake:
         self.tail_snake = None
         self.prev_dir = None  # TODO replace this with just prev_coords
         self.prev_coords = None
+
+        if not head_snake:
+            self.brain = Brain()
 
     def grow(self):
         if self.tail_snake:
@@ -168,7 +172,7 @@ while frame < 1000:
         fruit = None
 
     # decide next direction
-    next_dir = pick_random_direction()
+    next_dir = snake.brain.decide()
 
     # advance frame
     frame += 1
