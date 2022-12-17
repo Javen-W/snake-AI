@@ -18,6 +18,26 @@ class Fruit:
         pygame.draw.rect(screen, self.color, self.rect)
 
 
+def pick_random_direction():
+    if snake.rect.left <= 0:
+        return random.choice(['south-west', 'north-west', 'west'])
+    if snake.rect.right >= SCREEN_WIDTH:
+        return random.choice(['south-east', 'north-east', 'east'])
+    if snake.rect.top <= 0:
+        return random.choice(['south-west', 'south-east', 'south'])
+    if snake.rect.bottom >= SCREEN_HEIGHT:
+        return random.choice(['north-west', 'north-east', 'north'])
+
+
+class Brain:
+    def __init__(self):
+        self.is_dumb = True
+
+    def decide(self):
+        if self.is_dumb:
+            return pick_random_direction()
+
+
 class Snake:
     def __init__(self, start_coords, head_snake):
         self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
@@ -148,14 +168,7 @@ while frame < 1000:
         fruit = None
 
     # decide next direction
-    if snake.rect.left <= 0:
-        next_dir = random.choice(['south-west', 'north-west', 'west'])
-    if snake.rect.right >= SCREEN_WIDTH:
-        next_dir = random.choice(['south-east', 'north-east', 'east'])
-    if snake.rect.top <= 0:
-        next_dir = random.choice(['south-west', 'south-east', 'south'])
-    if snake.rect.bottom >= SCREEN_HEIGHT:
-        next_dir = random.choice(['north-west', 'north-east', 'north'])
+    next_dir = pick_random_direction()
 
     # advance frame
     frame += 1
