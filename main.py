@@ -6,15 +6,17 @@ pygame.init()
 
 
 class Fruit:
+    coords = None
+
     def __init__(self):
-        random_coords = (snake.rect.left, snake.rect.top)
+        Fruit.coords = (snake.rect.left, snake.rect.top)
         while snake.on_fruit():
-            random_coords = (
+            Fruit.coords = (
                 random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
                 random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
             )
 
-        self.rect = pygame.Rect(random_coords, (BLOCK_SIZE, BLOCK_SIZE))
+        self.rect = pygame.Rect(Fruit.coords, (BLOCK_SIZE, BLOCK_SIZE))
         self.color = (255, 0, 0)
 
     def draw(self):
@@ -138,7 +140,7 @@ class Snake:
             self.rect.bottom > SCREEN_HEIGHT
 
     def on_fruit(self):
-        fruit_coords = (fruit.rect.left, fruit.rect.top)
+        fruit_coords = (Fruit.coords[0], Fruit.coords[1])
         snake_coords = (self.rect.left, self.rect.top)
         if self.tail_snake:
             return snake_coords == fruit_coords or self.tail_snake.on_fruit()
