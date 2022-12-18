@@ -71,6 +71,7 @@ class Brain:
                 best_dir = direction
 
             # snake
+            print(snake.min_dist(test_rect.left, test_rect.top))
 
             # wall
 
@@ -146,11 +147,11 @@ class Snake:
             return snake_coords == fruit_coords or self.tail_snake.on_fruit()
         return snake_coords == fruit_coords
 
-    def dists(self, x, y):
+    def min_dist(self, x, y):
         my_dist = manhatten_distance(x, y, self.rect.left, self.rect.top)
         if self.tail_snake:
-            return [my_dist, self.tail_snake.dists()]
-        return [my_dist]
+            return min(my_dist, self.tail_snake.min_dist(x, y))
+        return my_dist
 
 
 # constants
