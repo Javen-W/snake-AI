@@ -30,6 +30,10 @@ def pick_random_direction():
     return random.choice(['north', 'south', 'west', 'east'])
 
 
+def manhatten_distance(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
+
 class Brain:
     def __init__(self):
         self.is_dumb = True
