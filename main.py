@@ -7,10 +7,13 @@ pygame.init()
 
 class Fruit:
     def __init__(self):
-        random_coords = (
-            random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
-            random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
-        )
+        random_coords = (snake.rect.left, snake.rect.top)
+        while snake.on_fruit():
+            random_coords = (
+                random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
+                random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
+            )
+
         self.rect = pygame.Rect(random_coords, (BLOCK_SIZE, BLOCK_SIZE))
         self.color = (255, 0, 0)
 
@@ -42,14 +45,15 @@ def manhatten_distance(x1, y1, x2, y2):
 
 class Brain:
     def __init__(self):
-        self.is_dumb = True
+        self.is_dumb = False
 
     def decide(self):
-        if self.is_dumb:
-            return pick_random_direction()
-
         # the 24 input nodes
         nn_inputs = []
+
+        # best choice
+        best_dir = pick_random_direction()
+        best_score = 999999
 
         # get hypothetical distances
         for direction in VELOCITIES:
@@ -59,11 +63,17 @@ class Brain:
             fruit_dist = fruit.dist(test_rect.left, test_rect.top)
             nn_inputs.append(fruit_dist)
 
+            # temp
+            if fruit_dist < best_score:
+                best_score = fruit_dist
+                best_dir = direction
+
             # snake
 
             # wall
 
         print(nn_inputs)
+        return best_dir
 
 
 class Snake:
@@ -162,7 +172,7 @@ VELOCITIES = {
 frame = 0
 screen = pygame.display.set_mode(SCREEN_SIZE)
 snake = Snake(start_coords=START_COORDS, head_snake=None)
-fruit = None
+fruit = Fruit()
 is_alive = True
 next_dir = 'south-west'
 
@@ -172,12 +182,6 @@ while frame < 1000:
     print("Frame: {} | Size: {} | On-self: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
         frame, snake.size(), snake.on_self(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
     )
-
-    # spawn fruit
-    if not fruit:
-        fruit = Fruit()
-        while snake.on_fruit():
-            fruit = Fruit()
 
     # draw & display current frame
     screen.fill(COLOR_BLACK)
@@ -202,7 +206,7 @@ while frame < 1000:
     # did the snake eat the fruit?
     if snake.on_fruit():
         snake.grow()
-        fruit = None
+        fruit = Fruit()
 
     # decide next direction
     next_dir = snake.brain.decide()
