@@ -70,6 +70,14 @@ class Brain:
             nn_inputs.append(snake_dist)
 
             # wall
+            wall_dist = min(
+                abs(0 - test_rect.left),
+                abs(600 - test_rect.left),
+                abs(0 - test_rect.top),
+                abs(600 - test_rect.top),
+            )
+            nn_inputs.append(wall_dist)
+            print(wall_dist)
 
             # temp
             if fruit_dist < best_score:
