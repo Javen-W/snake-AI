@@ -55,8 +55,13 @@ class Brain:
         for direction in VELOCITIES:
             test_rect = snake.rect.move(VELOCITIES[direction])
 
+            # fruit
             fruit_dist = fruit.dist(test_rect.left, test_rect.top)
             nn_inputs.append(fruit_dist)
+
+            # snake
+
+            # wall
 
         print(nn_inputs)
 
@@ -128,6 +133,12 @@ class Snake:
         if self.tail_snake:
             return snake_coords == fruit_coords or self.tail_snake.on_fruit()
         return snake_coords == fruit_coords
+
+    def dists(self, x, y):
+        my_dist = manhatten_distance(x, y, self.rect.left, self.rect.top)
+        if self.tail_snake:
+            return [my_dist, self.tail_snake.dists()]
+        return [my_dist]
 
 
 # constants
