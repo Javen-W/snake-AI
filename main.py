@@ -17,6 +17,12 @@ class Fruit:
     def draw(self):
         pygame.draw.rect(screen, self.color, self.rect)
 
+    def dist(self, x, y):
+        return manhatten_distance(
+            x, y,
+            self.rect.left, self.rect.top
+        )
+
 
 def pick_random_direction():
     if snake.rect.left <= 0:
@@ -41,6 +47,18 @@ class Brain:
     def decide(self):
         if self.is_dumb:
             return pick_random_direction()
+
+        # the 24 input nodes
+        nn_inputs = []
+
+        # get hypothetical distances
+        for direction in VELOCITIES:
+            test_rect = snake.rect.move(VELOCITIES[direction])
+
+            fruit_dist = fruit.dist(test_rect.left, test_rect.top)
+            nn_inputs.append(fruit_dist)
+
+        print(nn_inputs)
 
 
 class Snake:
