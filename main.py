@@ -65,15 +65,16 @@ class Brain:
             fruit_dist = fruit.dist(test_rect.left, test_rect.top)
             nn_inputs.append(fruit_dist)
 
+            # snake
+            snake_dist = snake.min_dist(test_rect.left, test_rect.top)
+            nn_inputs.append(snake_dist)
+
+            # wall
+
             # temp
             if fruit_dist < best_score:
                 best_score = fruit_dist
                 best_dir = direction
-
-            # snake
-            print(snake.min_dist(test_rect.left, test_rect.top))
-
-            # wall
 
         print(nn_inputs)
         return best_dir
