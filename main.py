@@ -1,7 +1,10 @@
 import sys
 from time import sleep
+
+import numpy.random
 import pygame
 import random
+import numpy as np
 pygame.init()
 
 
@@ -46,8 +49,10 @@ def manhatten_distance(x1, y1, x2, y2):
 
 
 class Brain:
-    def __init__(self):
-        self.is_dumb = False
+    def __init__(self, n_input: int, n_hidden: int, n_output: int):
+        self.w_input_hidden = numpy.random.uniform(low=-1.0, high=1.0, size=(n_hidden, n_input + 1))
+        self.w_hidden_hidden = numpy.random.uniform(low=-1.0, high=1.0, size=(n_hidden, n_hidden + 1))
+        self.w_hidden_output = numpy.random.uniform(low=-1.0, high=1.0, size=(n_output, n_hidden + 1))
 
     def decide(self):
         # the 24 input nodes
@@ -77,7 +82,6 @@ class Brain:
                 abs(600 - test_rect.top),
             )
             nn_inputs.append(wall_dist)
-            print(wall_dist)
 
             # temp
             if fruit_dist < best_score:
@@ -98,7 +102,7 @@ class Snake:
         self.prev_coords = None
 
         if not head_snake:
-            self.brain = Brain()
+            self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
 
     def grow(self):
         if self.tail_snake:
