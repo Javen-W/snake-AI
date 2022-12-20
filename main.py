@@ -198,6 +198,9 @@ class Snake:
     def fitness(self):
         return self.size()
 
+    def breed(self, partner_snake):
+        return self
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -205,6 +208,7 @@ COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
+POPULATION_SIZE = 100
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
@@ -219,21 +223,21 @@ VELOCITIES = {
 # game vars
 generation = 0
 screen = pygame.display.set_mode(SCREEN_SIZE)
-snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(100)]
+snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 
 # play
 while generation < 100:
     # new generation
     generation += 1
-    print(snakes)
+    print("Generation: {}".format(generation))
 
-    # event listeners
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-
-    # natural selection of the snakes
+    # natural selection of the snakes - test their survival
     for snake in snakes:
+        # event listeners
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
         fruit = Fruit()
         while snake.tol > 0:
             # draw & display current frame
@@ -260,4 +264,15 @@ while generation < 100:
             snake.time_lived += 1
             snake.tol -= 1
             sleep(1/10)
+
+    # breed the most fit snakes
+    fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1])[0:POPULATION_SIZE * 0.20]
+    alpha_snake = fittest_snakes[0][0]
+    snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
+    print("The alpha snake of gen {}: fitness={}, size={}, color={}".format(
+        generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
+    ))
+
+
+
 
