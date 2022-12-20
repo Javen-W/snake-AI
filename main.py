@@ -31,18 +31,6 @@ class Fruit:
         )
 
 
-def pick_random_direction():
-    if snake.rect.left <= 0:
-        return random.choice(['south-west', 'north-west', 'west'])
-    if snake.rect.right >= SCREEN_WIDTH:
-        return random.choice(['south-east', 'north-east', 'east'])
-    if snake.rect.top <= 0:
-        return random.choice(['south-west', 'south-east', 'south'])
-    if snake.rect.bottom >= SCREEN_HEIGHT:
-        return random.choice(['north-west', 'north-east', 'north'])
-    return random.choice(['north', 'south', 'west', 'east'])
-
-
 def manhatten_distance(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
@@ -272,7 +260,3 @@ while generation < 100:
     print("The alpha snake of gen {}: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
-
-
-
-
