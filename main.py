@@ -61,7 +61,7 @@ class Brain:
     def activate(n):
         return [[Brain.sigmoid(col) for col in row] for row in n]
 
-    def nn_decision(self, v_input):
+    def nn_process(self, v_input):
         # add bias to and transpose input vector
         v_input.append(1)
         v_input = numpy.transpose(numpy.atleast_2d(v_input))
@@ -86,10 +86,6 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # best choice
-        best_dir = pick_random_direction()
-        best_score = 999999
-
         # get hypothetical distances
         for direction in VELOCITIES:
             test_rect = snake.rect.move(VELOCITIES[direction])
@@ -111,16 +107,16 @@ class Brain:
             )
             nn_inputs.append(wall_dist)
 
-            # temp
-            if fruit_dist < best_score:
-                best_score = fruit_dist
-                best_dir = direction
-
-        print(nn_inputs)
-        nn_decision = self.nn_decision(nn_inputs)
-        print(nn_decision)
-
-        return best_dir
+        nn_output = self.nn_process(nn_inputs)
+        highest_node = nn_output.index(max([row[0] for row in nn_output]))
+        if highest_node == 0:
+            return 'west'
+        elif highest_node == 1:
+            return 'east'
+        elif highest_node == 2:
+            return 'north'
+        elif highest_node == 3:
+            return 'south'
 
 
 class Snake:
@@ -131,6 +127,8 @@ class Snake:
         self.tail_snake = None
         self.prev_dir = None  # TODO replace this with just prev_coords
         self.prev_coords = None
+        self.time_lived = 0
+        self.tol = 200
 
         if not head_snake:
             self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
@@ -197,6 +195,9 @@ class Snake:
             return min(my_dist, self.tail_snake.min_dist(x, y))
         return my_dist
 
+    def fitness(self):
+        return self.size()
+
 
 # constants
 COLOR_BLACK = 0, 0, 0
@@ -216,49 +217,47 @@ VELOCITIES = {
 }
 
 # game vars
-frame = 0
+generation = 0
 screen = pygame.display.set_mode(SCREEN_SIZE)
-snake = Snake(start_coords=START_COORDS, head_snake=None)
-fruit = Fruit()
-is_alive = True
-next_dir = 'south-west'
+snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(100)]
 
 # play
-while frame < 1000:
-    snake.print()
-    print("Frame: {} | Size: {} | On-self: {} | Next direction: {} | Coords: ({}, {}, {}, {})".format(
-        frame, snake.size(), snake.on_self(), next_dir, snake.rect.left, snake.rect.right, snake.rect.top, snake.rect.bottom)
-    )
-
-    # draw & display current frame
-    screen.fill(COLOR_BLACK)
-    snake.draw()
-    fruit.draw()
-    pygame.display.flip()
+while generation < 100:
+    # new generation
+    generation += 1
+    print(snakes)
 
     # event listeners
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
-    # move snake
-    snake.move(direction=next_dir)
-
-    # did the snake collide with itself?
-    if snake.on_self() or snake.on_wall():
-        print("Snake died.")
-        is_alive = False
-        # break
-
-    # did the snake eat the fruit?
-    if snake.on_fruit():
-        snake.grow()
+    # natural selection of the snakes
+    for snake in snakes:
         fruit = Fruit()
+        while snake.tol > 0:
+            # draw & display current frame
+            screen.fill(COLOR_BLACK)
+            snake.draw()
+            fruit.draw()
+            pygame.display.flip()
 
-    # decide next direction
-    next_dir = snake.brain.decide()
+            # move snake
+            snake.move(direction=snake.brain.decide())
 
-    # advance frame
-    frame += 1
-    sleep(1/10)
+            # did the snake collide with itself?
+            if snake.on_self() or snake.on_wall():
+                is_alive = False
+                break
+
+            # did the snake eat the fruit?
+            if snake.on_fruit():
+                snake.grow()
+                fruit = Fruit()
+                snake.tol = 200
+
+            # advance frame
+            snake.time_lived += 1
+            snake.tol -= 1
+            sleep(1/10)
 
