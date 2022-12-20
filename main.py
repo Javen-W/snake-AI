@@ -53,6 +53,22 @@ class Brain:
     def mutate(vector, mutation_rate: float):
         return [[col + random.uniform(-1.0, 1.0) if random.random() <= mutation_rate else col for col in row] for row in vector]
 
+    @staticmethod
+    def crossover(v_a, v_b):
+        n_rows, n_cols = len(v_a), len(v_a[0])
+        r_row, r_col = random.randint(0, n_rows), random.randint(0, n_cols)
+        v_child = [[0] * n_cols for _ in range(n_rows)]
+
+        for row in range(n_rows):
+            for col in range(n_cols):
+                if row < r_row or (row == r_row and col <= r_col):
+                    v_child[row][col] = v_a[row][col]
+                else:
+                    v_child[row][col] = v_b[row][col]
+
+        return v_child
+
+
     def nn_process(self, v_input):
         # add bias to and transpose input vector
         v_input.append(1)
