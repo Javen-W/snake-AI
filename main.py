@@ -49,6 +49,10 @@ class Brain:
     def activate(n):
         return [[Brain.sigmoid(col) for col in row] for row in n]
 
+    @staticmethod
+    def mutate(vector, mutation_rate: float):
+        return [[col + random.uniform(-1.0, 1.0) if random.random() <= mutation_rate else col for col in row] for row in vector]
+
     def nn_process(self, v_input):
         # add bias to and transpose input vector
         v_input.append(1)
@@ -113,7 +117,7 @@ class Snake:
         self.head_snake = head_snake
         self.brain = brain
         self.color = color
-        
+
         self.tail_snake = None
         self.prev_dir = None  # TODO replace this with just prev_coords
         self.prev_coords = None
