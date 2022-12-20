@@ -1,11 +1,9 @@
 import math
 import sys
 from time import sleep
-
 import numpy.random
 import pygame
 import random
-import numpy as np
 pygame.init()
 
 
@@ -83,7 +81,6 @@ class Brain:
         v_hidden_output = self.activate(v_hidden_output)
 
         return v_hidden_output
-
 
     def decide(self):
         # the 24 input nodes
