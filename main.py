@@ -1,3 +1,4 @@
+import math
 import sys
 from time import sleep
 
@@ -54,6 +55,36 @@ class Brain:
         self.w_hidden_hidden = numpy.random.uniform(low=-1.0, high=1.0, size=(n_hidden, n_hidden + 1))
         self.w_hidden_output = numpy.random.uniform(low=-1.0, high=1.0, size=(n_output, n_hidden + 1))
 
+    @staticmethod
+    def sigmoid(x: float):
+        return 1 / (1 + pow(math.e, -x))
+
+    @staticmethod
+    def activate(n):
+        return [[Brain.sigmoid(col) for col in row] for row in n]
+
+    def nn_decision(self, v_input):
+        # add bias to and transpose input vector
+        v_input.append(1)
+        v_input = numpy.transpose(numpy.atleast_2d(v_input))
+
+        # results of layer-1 weights and input vector
+        v_input_hidden = self.w_input_hidden.dot(v_input)
+        v_input_hidden = self.activate(v_input_hidden)
+        v_input_hidden.append([1])
+
+        # results of layer-2 weights and layer-1 output
+        v_hidden_hidden = self.w_hidden_hidden.dot(v_input_hidden)
+        v_hidden_hidden = self.activate(v_hidden_hidden)
+        v_hidden_hidden.append([1])
+
+        # results of layer-3 weights and layer-2 output
+        v_hidden_output = self.w_hidden_output.dot(v_hidden_hidden)
+        v_hidden_output = self.activate(v_hidden_output)
+
+        return v_hidden_output
+
+
     def decide(self):
         # the 24 input nodes
         nn_inputs = []
@@ -89,6 +120,9 @@ class Brain:
                 best_dir = direction
 
         print(nn_inputs)
+        nn_decision = self.nn_decision(nn_inputs)
+        print(nn_decision)
+
         return best_dir
 
 
