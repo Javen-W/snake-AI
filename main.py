@@ -108,17 +108,21 @@ class Brain:
 
 
 class Snake:
-    def __init__(self, start_coords, head_snake):
+    def __init__(self, start_coords, head_snake=None, color=None, brain=None):
         self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
-        self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
         self.head_snake = head_snake
+        self.brain = brain
+        self.color = color
+        
         self.tail_snake = None
         self.prev_dir = None  # TODO replace this with just prev_coords
         self.prev_coords = None
         self.time_lived = 0
         self.tol = 200
 
-        if not head_snake:
+        if not color:
+            self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
+        if not head_snake and not brain:
             self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
 
     def grow(self):
@@ -127,7 +131,7 @@ class Snake:
             self.tail_snake.grow()
         else:
             # this is the last snake
-            self.tail_snake = Snake(start_coords=self.prev_coords, head_snake=self)
+            self.tail_snake = Snake(start_coords=self.prev_coords, head_snake=self, color=self.color, brain=None)
 
     def move(self, direction):
         if direction:
