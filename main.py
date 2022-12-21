@@ -1,7 +1,6 @@
 import math
 import sys
 from time import sleep
-from sklearn.preprocessing import normalize
 import numpy.random
 import pygame
 import random
@@ -106,7 +105,6 @@ class Brain:
 
             # advance vision until a wall is reached
             while vision_rect.left > 0 and vision_rect.top > 0 and vision_rect.right < SCREEN_WIDTH and vision_rect.bottom < SCREEN_HEIGHT:
-
                 # fruit
                 if (vision_rect.left, vision_rect.top) == (fruit.rect.left, fruit.rect.top):
                     input_fruit = 1
@@ -125,8 +123,11 @@ class Brain:
             nn_inputs.append(input_tail)
             nn_inputs.append(input_wall)
 
+        # print(nn_inputs)
         nn_output = self.nn_process(nn_inputs)
         highest_node = nn_output.index(max([row[0] for row in nn_output]))
+        # print(nn_output)
+        # print()
         if highest_node == 0:
             return 'west'
         elif highest_node == 1:
@@ -247,8 +248,8 @@ COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
-POPULATION_SIZE = 100
-MUTATION_RATE = 0.15
+POPULATION_SIZE = 2000
+MUTATION_RATE = 0.45
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
@@ -304,8 +305,10 @@ while generation < 100:
             # advance frame
             snake.time_lived += 1
             snake.tol -= 1
+
+            # sleep(10)
             # sleep(1/10)
-            sleep(1/60)
+            # sleep(1/60)
 
         # snake is done
         print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
