@@ -73,7 +73,7 @@ class Brain:
         # normalize, add bias to, and transpose input vector
         v_input.append(1)
         v_input = numpy.transpose(numpy.atleast_2d(v_input))
-        v_input = normalize(v_input.reshape(1, -1)).reshape(-1, 1)
+        # v_input = normalize(v_input.reshape(1, -1)).reshape(-1, 1)
 
         # results of layer-1 weights and input vector
         v_input_hidden = self.w_input_hidden.dot(v_input)
@@ -97,24 +97,33 @@ class Brain:
 
         # get hypothetical distances
         for direction in VELOCITIES:
-            test_rect = snake.rect.move(VELOCITIES[direction])
+            distance = 0
+            input_fruit, input_tail, input_wall = 0, 0, 0
 
-            # fruit
-            fruit_dist = fruit.dist(test_rect.left, test_rect.top)
-            nn_inputs.append(fruit_dist)
+            # advance vision
+            vision_rect = snake.rect.move(VELOCITIES[direction])
+            distance += 1
 
-            # snake
-            snake_dist = snake.min_dist(test_rect.left, test_rect.top)
-            nn_inputs.append(snake_dist)
+            # advance vision until a wall is reached
+            while vision_rect.left > 0 and vision_rect.top > 0 and vision_rect.right < SCREEN_WIDTH and vision_rect.bottom < SCREEN_HEIGHT:
 
-            # wall
-            wall_dist = min(
-                abs(0 - test_rect.left),
-                abs(600 - test_rect.left),
-                abs(0 - test_rect.top),
-                abs(600 - test_rect.top),
-            )
-            nn_inputs.append(wall_dist)
+                # fruit
+                if (vision_rect.left, vision_rect.top) == (fruit.rect.left, fruit.rect.top):
+                    input_fruit = 1
+
+                # snake
+                if snake.on_self(head_coords=(vision_rect.left, vision_rect.top)):
+                    input_tail = 1 / distance
+
+                # advance
+                vision_rect = vision_rect.move(VELOCITIES[direction])
+                distance += 1
+
+            # add direction input variables to input vector
+            input_wall = 1 / distance
+            nn_inputs.append(input_fruit)
+            nn_inputs.append(input_tail)
+            nn_inputs.append(input_wall)
 
         nn_output = self.nn_process(nn_inputs)
         highest_node = nn_output.index(max([row[0] for row in nn_output]))
