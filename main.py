@@ -268,8 +268,9 @@ VELOCITIES = {
 
 # game vars
 generation = 0
-screen = pygame.display.set_mode(SCREEN_SIZE)
 snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
+if SHOW_GRAPHICS:
+    screen = pygame.display.set_mode(SCREEN_SIZE)
 
 # play
 while generation < 100:
