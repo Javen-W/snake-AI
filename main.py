@@ -94,7 +94,7 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # get hypothetical distances
+        # calculate nn input metrics - INPUT METRIC ALGORITHM v1
         for direction in VELOCITIES:
             distance = 0
             input_fruit, input_tail, input_wall = 0, 0, 0
@@ -123,11 +123,9 @@ class Brain:
             nn_inputs.append(input_tail)
             nn_inputs.append(input_wall)
 
-        # print(nn_inputs)
+        # process input metrics through nn and make directional decision
         nn_output = self.nn_process(nn_inputs)
         highest_node = nn_output.index(max([row[0] for row in nn_output]))
-        # print(nn_output)
-        # print()
         if highest_node == 0:
             return 'west'
         elif highest_node == 1:
@@ -311,19 +309,18 @@ while generation < 100:
             # advance frame
             snake.time_lived += 1
             snake.tol -= 1
-
             # sleep(10)
             # sleep(1/10)
-            # sleep(1/60)
 
-        # snake is done
-        # print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
-
-    # breed the most fit snakes
+    # sort snakes by fitness
     average_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
     alpha_snake = fittest_snakes[0][0]
+
+    # breed the most fit snakes - BREEDING ALGORITHM v1
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
+
+    # store & log generation results
     print("Gen {} average fitness: {}".format(generation, average_fitness))
     print("Gen {} alpha snake: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
