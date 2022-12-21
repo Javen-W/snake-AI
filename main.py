@@ -1,3 +1,4 @@
+import json
 import math
 import sys
 from time import sleep
@@ -40,6 +41,13 @@ class Brain:
         self.w_input_hidden = numpy.random.uniform(low=-1.0, high=1.0, size=(n_hidden, n_input + 1))
         self.w_hidden_hidden = numpy.random.uniform(low=-1.0, high=1.0, size=(n_hidden, n_hidden + 1))
         self.w_hidden_output = numpy.random.uniform(low=-1.0, high=1.0, size=(n_output, n_hidden + 1))
+
+    def serialize(self):
+        return {
+            'w_input_hidden': self.w_input_hidden,
+            'w_hidden_hidden': self.w_hidden_hidden,
+            'w_hidden_output': self.w_hidden_output,
+        }
 
     @staticmethod
     def sigmoid(x: float):
@@ -321,12 +329,12 @@ while generation < 100:
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
     alpha_snake = fittest_snakes[0][0]
 
-    # breed the most fit snakes - BREEDING ALGORITHM v1
-    snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
-
     # analyze generation results
     avg_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
     avg_fitness_roc = avg_fitness - gen_data[generation - 1]['avg_fitness']
+
+    # breed the most fit snakes - BREEDING ALGORITHM v1
+    snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
 
     # store & log generation results
     gen_data[generation] = {
@@ -334,6 +342,7 @@ while generation < 100:
         'avg_fitness_roc': avg_fitness_roc,
         'record_fitness': alpha_snake.fitness(),
         'record_size': alpha_snake.size(),
+        'alpha_snake_genetics': alpha_snake.brain.serialize(),
     }
     print("Gen {} average fitness: {}".format(generation, avg_fitness))
     print("Gen {} average fitness ROC: {}".format(generation, avg_fitness_roc))
