@@ -44,7 +44,6 @@ class Brain:
 
     @staticmethod
     def sigmoid(x: float):
-        print(-x)
         return 1 / (1 + pow(math.e, -x))
 
     @staticmethod
@@ -210,7 +209,7 @@ class Snake:
         return my_dist
 
     def fitness(self):
-        return (self.time_lived ** 2) * (2 ** self.size())
+        return (2 ** self.size()) + self.time_lived
 
     def breed(self, partner_snake):
         # random color
