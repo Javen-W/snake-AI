@@ -224,6 +224,9 @@ class Snake:
     def breed(self, partner_snake):
         # random color
         child_color = random.choice([self.color, partner_snake.color])
+        child_color[0] = (child_color[0] + random.randint(-1, 1)) % 256
+        child_color[1] = (child_color[1] + random.randint(-1, 1)) % 256
+        child_color[2] = (child_color[2] + random.randint(-1, 1)) % 256
 
         # crossed brain
         child_brain = Brain(0, 0, 0)
