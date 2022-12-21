@@ -52,7 +52,7 @@ class Brain:
 
     @staticmethod
     def mutate(vector, mutation_rate: float):
-        return [[col + random.uniform(-1.0, 1.0) if random.random() <= mutation_rate else col for col in row] for row in vector]
+        return numpy.array([[col + random.uniform(-1.0, 1.0) if random.random() <= mutation_rate else col for col in row] for row in vector])
 
     @staticmethod
     def crossover(v_a, v_b):
@@ -67,7 +67,7 @@ class Brain:
                 else:
                     v_child[row][col] = v_b[row][col]
 
-        return v_child
+        return numpy.array(v_child)
 
     def nn_process(self, v_input):
         # normalize, add bias to, and transpose input vector
@@ -296,13 +296,13 @@ while generation < 100:
             snake.time_lived += 1
             snake.tol -= 1
             # sleep(1/10)
-            sleep(1/45)
+            sleep(1/60)
 
         # snake is done
         print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
 
     # breed the most fit snakes
-    fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1])[0:POPULATION_SIZE * 0.20]
+    fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * 0.20)]
     alpha_snake = fittest_snakes[0][0]
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
     print("The alpha snake of gen {}: fitness={}, size={}, color={}".format(
