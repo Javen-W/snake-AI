@@ -273,9 +273,9 @@ if SHOW_GRAPHICS:
 
 # world constants
 POPULATION_SIZE = 2000
-MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.10
-MAX_GENERATIONS = 3
+MUTATION_RATE = 0.05
+BREEDING_THRESHOLD = 0.30
+MAX_GENERATIONS = 100
 
 # world vars
 _id = random.randint(10000, 99999)
@@ -355,7 +355,7 @@ while generation < MAX_GENERATIONS:
     }
     print("Gen: fitness={}, fitness ROC={}".format(gen_fitness, gen_fitness_roc))
     print("Alpha: fitness={}, size={}, color={}".format(
-        generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
+        alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
     print()
 
