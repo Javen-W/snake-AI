@@ -304,7 +304,7 @@ while generation < 100:
             if snake.on_fruit():
                 snake.grow()
                 fruit = Fruit()
-                snake.tol = 200
+                snake.tol += 100
 
             # advance frame
             snake.time_lived += 1
@@ -315,12 +315,15 @@ while generation < 100:
             # sleep(1/60)
 
         # snake is done
-        print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
+        # print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
 
     # breed the most fit snakes
+    average_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * 0.20)]
     alpha_snake = fittest_snakes[0][0]
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
-    print("The alpha snake of gen {}: fitness={}, size={}, color={}".format(
+    print("Gen {] average fitness: {}".format(generation, average_fitness))
+    print("Gen {} alpha snake: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
+    print()
