@@ -283,12 +283,17 @@ generation = 0
 snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 gen_data = {
     0: {
-        'avg_fitness': 0,
+        'gen_fitness': 0,
+        'gen_fitness_roc': 0,
+        'alpha_fitness': 0,
+        'alpha_size': 0,
+        'alpha_genetics': None,
     }
 }
 
-# play
-while generation < 100:
+# begin world game
+print("\n-- World begin --")
+while generation < MAX_GENERATIONS:
     # new generation
     generation += 1
     print("Generation: {}".format(generation))
@@ -334,23 +339,22 @@ while generation < 100:
     alpha_snake = fittest_snakes[0][0]
 
     # analyze generation results
-    avg_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
-    avg_fitness_roc = avg_fitness - gen_data[generation - 1]['avg_fitness']
+    gen_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
+    gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
 
     # breed the most fit snakes - BREEDING ALGORITHM v1
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
 
     # store & log generation results
     gen_data[generation] = {
-        'avg_fitness': avg_fitness,
-        'avg_fitness_roc': avg_fitness_roc,
+        'gen_fitness': gen_fitness,
+        'gen_fitness_roc': gen_fitness_roc,
         'alpha_fitness': alpha_snake.fitness(),
         'alpha_size': alpha_snake.size(),
         'alpha_genetics': alpha_snake.brain.serialize(),
     }
-    print("Gen {} average fitness: {}".format(generation, avg_fitness))
-    print("Gen {} average fitness ROC: {}".format(generation, avg_fitness_roc))
-    print("Gen {} alpha snake: fitness={}, size={}, color={}".format(
+    print("Gen: fitness={}, fitness ROC={}".format(gen_fitness, gen_fitness_roc))
+    print("Alpha: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
     print()
