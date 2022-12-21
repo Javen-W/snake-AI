@@ -250,6 +250,7 @@ COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
+SHOW_GRAPHICS = False
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.45
@@ -285,18 +286,18 @@ while generation < 100:
         # play game
         fruit = Fruit()
         while snake.tol > 0:
-            # draw & display current frame
-            screen.fill(COLOR_BLACK)
-            snake.draw()
-            fruit.draw()
-            pygame.display.flip()
+            if SHOW_GRAPHICS:
+                # draw & display current frame
+                screen.fill(COLOR_BLACK)
+                snake.draw()
+                fruit.draw()
+                pygame.display.flip()
 
             # move snake
             snake.move(direction=snake.brain.decide())
 
             # did the snake collide with itself?
             if snake.on_self() or snake.on_wall():
-                is_alive = False
                 break
 
             # did the snake eat the fruit?
