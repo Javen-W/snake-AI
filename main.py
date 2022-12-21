@@ -254,6 +254,7 @@ SHOW_GRAPHICS = False
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
+BREEDING_THRESHOLD = 0.10
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
@@ -319,7 +320,7 @@ while generation < 100:
 
     # breed the most fit snakes
     average_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
-    fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * 0.20)]
+    fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
     alpha_snake = fittest_snakes[0][0]
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
     print("Gen {} average fitness: {}".format(generation, average_fitness))
