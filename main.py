@@ -162,6 +162,9 @@ class Snake:
         if not head_snake and not brain:
             self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
 
+    def clone(self):
+        return Snake(start_coords=START_COORDS, head_snake=None, color=self.color, brain=self.brain)
+
     def grow(self):
         if self.tail_snake:
             # this is not the last snake; relay to next tail snake
@@ -274,9 +277,9 @@ if SHOW_GRAPHICS:
 # world constants
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.30
-MAX_GENERATIONS = 100
-BLUEPRINT_SNAKE_ID = 15862
+BREEDING_THRESHOLD = 0.25
+MAX_GENERATIONS = 25
+BLUEPRINT_SNAKE_ID = 25475
 
 # world vars
 _id = random.randint(10000, 99999)
@@ -354,8 +357,10 @@ while generation < MAX_GENERATIONS:
     gen_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
     gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
 
-    # breed the most fit snakes - BREEDING ALGORITHM v1
-    snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
+    # breed the next gen of snakes - BREEDING ALGORITHM v2
+    # (1 alpha clone + 5.0% alpha-alpha pairs + 95.0% random fit snake pairs)
+    alpha_clones = [alpha_snake.clone()] + [alpha_snake.breed(alpha_snake) for _ in range(math.floor(POPULATION_SIZE * 0.05))]
+    snakes = alpha_clones + [random.choice(fittest_snakes)[0].breed(random.choice(fittest_snakes)[0]) for _ in range(POPULATION_SIZE - len(alpha_clones))]
 
     # store & log generation results
     gen_data[generation] = {
