@@ -251,16 +251,13 @@ class Snake:
         return child_snake
 
 
-# constants
+# game constants
 COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 SHOW_GRAPHICS = False
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
-POPULATION_SIZE = 2000
-MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.10
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
@@ -271,12 +268,19 @@ VELOCITIES = {
     'south-west': [BLOCK_SIZE, BLOCK_SIZE],
     'south-east': [-BLOCK_SIZE, BLOCK_SIZE],
 }
-
-# game vars
-generation = 0
-snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 if SHOW_GRAPHICS:
     screen = pygame.display.set_mode(SCREEN_SIZE)
+
+# world constants
+POPULATION_SIZE = 2000
+MUTATION_RATE = 0.01
+BREEDING_THRESHOLD = 0.10
+MAX_GENERATIONS = 3
+
+# world vars
+_id = random.randint(10000, 99999)
+generation = 0
+snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 gen_data = {
     0: {
         'avg_fitness': 0,
