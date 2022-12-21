@@ -1,6 +1,7 @@
 import math
 import sys
 from time import sleep
+from sklearn.preprocessing import normalize
 import numpy.random
 import pygame
 import random
@@ -43,6 +44,7 @@ class Brain:
 
     @staticmethod
     def sigmoid(x: float):
+        print(-x)
         return 1 / (1 + pow(math.e, -x))
 
     @staticmethod
@@ -69,9 +71,10 @@ class Brain:
         return v_child
 
     def nn_process(self, v_input):
-        # add bias to and transpose input vector
+        # normalize, add bias to, and transpose input vector
         v_input.append(1)
         v_input = numpy.transpose(numpy.atleast_2d(v_input))
+        v_input = normalize(v_input.reshape(1, -1)).reshape(-1, 1)
 
         # results of layer-1 weights and input vector
         v_input_hidden = self.w_input_hidden.dot(v_input)
