@@ -366,9 +366,10 @@ sigma_gen = sorted(gen_data.items(), key=lambda kv: kv[1]['alpha_fitness'], reve
 
 # report results
 print("-- World complete --")
-print("World: id={}, max generations={}, population size={}, mutation rate={}, breeding threshold={}".format(
+print("Parameters: id={}, max generations={}, population size={}, mutation rate={}, breeding threshold={}".format(
     _id, MAX_GENERATIONS, POPULATION_SIZE, MUTATION_RATE, BREEDING_THRESHOLD
 ))
+print("World: fitness={}, fitness ROC={}".format(world_fitness, world_fitness_roc))
 print("Sigma: generation={}, fitness={}, size={}".format(
     sigma_gen[0], sigma_gen[1]['alpha_fitness'], sigma_gen[1]['alpha_size']
 ))
