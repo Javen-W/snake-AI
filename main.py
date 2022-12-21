@@ -273,14 +273,14 @@ if SHOW_GRAPHICS:
 
 # world constants
 POPULATION_SIZE = 2000
-MUTATION_RATE = 0.05
+MUTATION_RATE = 0.01
 BREEDING_THRESHOLD = 0.30
 MAX_GENERATIONS = 100
+BLUEPRINT_SNAKE_ID = 15862
 
 # world vars
 _id = random.randint(10000, 99999)
 generation = 0
-snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 gen_data = {
     0: {
         'gen_fitness': 0,
@@ -290,6 +290,18 @@ gen_data = {
         'alpha_genetics': None,
     }
 }
+
+# create initial snake generation
+if BLUEPRINT_SNAKE_ID:
+    blueprint_brain = Brain(0, 0, 0)
+    blueprint_brain.w_input_hidden = numpy.loadtxt('snake_data/{}/w_input_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
+    blueprint_brain.w_hidden_hidden = numpy.loadtxt('snake_data/{}/w_hidden_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
+    blueprint_brain.w_hidden_output = numpy.loadtxt('snake_data/{}/w_hidden_output.txt'.format(BLUEPRINT_SNAKE_ID))
+    blueprint_snake = Snake(start_coords=START_COORDS, head_snake=None, brain=blueprint_brain)
+    snakes = [blueprint_snake.breed(blueprint_snake) for _ in range(POPULATION_SIZE)]
+else:
+    # use completely randomized snakes
+    snakes = [Snake(start_coords=START_COORDS, head_snake=None) for _ in range(POPULATION_SIZE)]
 
 # begin world game
 print("\n-- World begin --")
@@ -366,8 +378,8 @@ sigma_gen = sorted(gen_data.items(), key=lambda kv: kv[1]['alpha_fitness'], reve
 
 # report results
 print("-- World complete --")
-print("Parameters: id={}, max generations={}, population size={}, mutation rate={}, breeding threshold={}".format(
-    _id, MAX_GENERATIONS, POPULATION_SIZE, MUTATION_RATE, BREEDING_THRESHOLD
+print("Parameters: id={}, max generations={}, population size={}, mutation rate={}, breeding threshold={}, blueprint snake={}".format(
+    _id, MAX_GENERATIONS, POPULATION_SIZE, MUTATION_RATE, BREEDING_THRESHOLD, BLUEPRINT_SNAKE_ID
 ))
 print("World: fitness={}, fitness ROC={}".format(world_fitness, world_fitness_roc))
 print("Sigma: generation={}, fitness={}, size={}".format(
