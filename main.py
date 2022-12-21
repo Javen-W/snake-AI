@@ -68,7 +68,6 @@ class Brain:
 
         return v_child
 
-
     def nn_process(self, v_input):
         # add bias to and transpose input vector
         v_input.append(1)
@@ -211,7 +210,24 @@ class Snake:
         return self.size()
 
     def breed(self, partner_snake):
-        return self
+        # random color
+        child_color = random.choice([self.color, partner_snake.color])
+
+        # crossed brain
+        child_brain = Brain(0, 0, 0)
+        child_brain.w_input_hidden = Brain.crossover(v_a=self.brain.w_input_hidden, v_b=partner_snake.brain.w_input_hidden)
+        child_brain.w_hidden_hidden = Brain.crossover(v_a=self.brain.w_hidden_hidden, v_b=partner_snake.brain.w_hidden_hidden)
+        child_brain.w_hidden_output = Brain.crossover(v_a=self.brain.w_hidden_output, v_b=partner_snake.brain.w_hidden_output)
+
+        # mutate brain
+        child_brain.w_input_hidden = Brain.mutate(mutation_rate=MUTATION_RATE, vector=child_brain.w_input_hidden)
+        child_brain.w_hidden_hidden = Brain.mutate(mutation_rate=MUTATION_RATE, vector=child_brain.w_hidden_hidden)
+        child_brain.w_hidden_output = Brain.mutate(mutation_rate=MUTATION_RATE, vector=child_brain.w_hidden_output)
+
+        # create snake
+        child_snake = Snake(start_coords=START_COORDS, head_snake=None, color=child_color, brain=child_brain)
+
+        return child_snake
 
 
 # constants
@@ -221,6 +237,7 @@ BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
 POPULATION_SIZE = 100
+MUTATION_RATE = 0.15
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
     'east': [-BLOCK_SIZE, 0],
