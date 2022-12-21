@@ -1,4 +1,3 @@
-import json
 import math
 import sys
 from time import sleep
@@ -340,9 +339,9 @@ while generation < 100:
     gen_data[generation] = {
         'avg_fitness': avg_fitness,
         'avg_fitness_roc': avg_fitness_roc,
-        'record_fitness': alpha_snake.fitness(),
-        'record_size': alpha_snake.size(),
-        'alpha_snake_genetics': alpha_snake.brain.serialize(),
+        'alpha_fitness': alpha_snake.fitness(),
+        'alpha_size': alpha_snake.size(),
+        'alpha_genetics': alpha_snake.brain.serialize(),
     }
     print("Gen {} average fitness: {}".format(generation, avg_fitness))
     print("Gen {} average fitness ROC: {}".format(generation, avg_fitness_roc))
