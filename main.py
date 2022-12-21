@@ -224,9 +224,9 @@ class Snake:
     def breed(self, partner_snake):
         # random color
         child_color = random.choice([self.color, partner_snake.color])
-        child_color[0] = (child_color[0] + random.randint(-1, 1)) % 256
-        child_color[1] = (child_color[1] + random.randint(-1, 1)) % 256
-        child_color[2] = (child_color[2] + random.randint(-1, 1)) % 256
+        child_color = ((child_color[0] + random.randint(-1, 1)) % 256,
+                       (child_color[1] + random.randint(-1, 1)) % 256,
+                       (child_color[2] + random.randint(-1, 1)) % 256)
 
         # crossed brain
         child_brain = Brain(0, 0, 0)
@@ -322,7 +322,7 @@ while generation < 100:
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * 0.20)]
     alpha_snake = fittest_snakes[0][0]
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
-    print("Gen {] average fitness: {}".format(generation, average_fitness))
+    print("Gen {} average fitness: {}".format(generation, average_fitness))
     print("Gen {} alpha snake: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
