@@ -263,12 +263,13 @@ while generation < 100:
     print("Generation: {}".format(generation))
 
     # natural selection of the snakes - test their survival
-    for snake in snakes:
+    for i, snake in enumerate(snakes):
         # event listeners
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
+        # play game
         fruit = Fruit()
         while snake.tol > 0:
             # draw & display current frame
@@ -294,7 +295,11 @@ while generation < 100:
             # advance frame
             snake.time_lived += 1
             snake.tol -= 1
-            sleep(1/10)
+            # sleep(1/10)
+            sleep(1/45)
+
+        # snake is done
+        print("Gen {} Snake {}: size={}, fitness={}".format(generation, i, snake.size(), snake.fitness()))
 
     # breed the most fit snakes
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1])[0:POPULATION_SIZE * 0.20]
