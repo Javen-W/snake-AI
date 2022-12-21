@@ -1,4 +1,5 @@
 import math
+import os
 import sys
 from time import sleep
 import numpy.random
@@ -349,3 +350,24 @@ while generation < 100:
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
     print()
+
+# analyze world multi-generational results
+world_fitness = round(sum([gen_data[i]['gen_fitness'] for i in range(1, MAX_GENERATIONS + 1)]) / MAX_GENERATIONS, 2)
+world_fitness_roc = round(sum([gen_data[i]['gen_fitness_roc'] for i in range(1, MAX_GENERATIONS + 1)]) / MAX_GENERATIONS, 2)
+sigma_gen = sorted(gen_data.items(), key=lambda kv: kv[1]['alpha_fitness'], reverse=True)[0]
+
+# report results
+print("-- World complete --")
+print("World: id={}, max generations={}, population size={}, mutation rate={}, breeding threshold={}".format(
+    _id, MAX_GENERATIONS, POPULATION_SIZE, MUTATION_RATE, BREEDING_THRESHOLD
+))
+print("Sigma: generation={}, fitness={}, size={}".format(
+    sigma_gen[0], sigma_gen[1]['alpha_fitness'], sigma_gen[1]['alpha_size']
+))
+
+# save results
+os.mkdir("snake_data/{}/".format(_id))
+for w_layer in sigma_gen[1]['alpha_genetics']:
+    v_weights = sigma_gen[1]['alpha_genetics'][w_layer]
+    numpy.savetxt("snake_data/{}/{}.txt".format(_id, w_layer), v_weights)
+print("Sigma genetics saved to 'snake_data/{}/'.".format(_id))
