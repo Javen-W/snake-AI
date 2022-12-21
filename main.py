@@ -269,6 +269,11 @@ generation = 0
 snakes = [Snake(start_coords=START_COORDS, head_snake=None) for i in range(POPULATION_SIZE)]  # initial snake gen
 if SHOW_GRAPHICS:
     screen = pygame.display.set_mode(SCREEN_SIZE)
+gen_data = {
+    0: {
+        'avg_fitness': 0,
+    }
+}
 
 # play
 while generation < 100:
@@ -313,15 +318,25 @@ while generation < 100:
             # sleep(1/10)
 
     # sort snakes by fitness
-    average_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
     alpha_snake = fittest_snakes[0][0]
 
     # breed the most fit snakes - BREEDING ALGORITHM v1
     snakes = [alpha_snake.breed(random.choice(fittest_snakes)[0]) for i in range(POPULATION_SIZE)]
 
+    # analyze generation results
+    avg_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
+    avg_fitness_roc = avg_fitness - gen_data[generation - 1]['avg_fitness']
+
     # store & log generation results
-    print("Gen {} average fitness: {}".format(generation, average_fitness))
+    gen_data[generation] = {
+        'avg_fitness': avg_fitness,
+        'avg_fitness_roc': avg_fitness_roc,
+        'record_fitness': alpha_snake.fitness(),
+        'record_size': alpha_snake.size(),
+    }
+    print("Gen {} average fitness: {}".format(generation, avg_fitness))
+    print("Gen {} average fitness ROC: {}".format(generation, avg_fitness_roc))
     print("Gen {} alpha snake: fitness={}, size={}, color={}".format(
         generation, alpha_snake.fitness(), alpha_snake.size(), alpha_snake.color
     ))
