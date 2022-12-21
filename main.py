@@ -209,7 +209,7 @@ class Snake:
         return my_dist
 
     def fitness(self):
-        return (2 ** self.size()) + self.time_lived
+        return ((self.size() - 1) * 200) + (self.time_lived % 201)
 
     def breed(self, partner_snake):
         # random color
