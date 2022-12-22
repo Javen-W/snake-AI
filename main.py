@@ -355,8 +355,8 @@ while generation < MAX_GENERATIONS:
     # test the fitness of each snake in the generation
     with multiprocessing.Pool() as pool:
         snakes = pool.map(play_game, snakes)
-    completion_time = round(time.time() - start_time, 2)
-    print("Fitness testing completed in {} seconds".format(completion_time))
+    end_time = round(time.time() - start_time, 2)
+    print("Fitness testing completed in {} seconds".format(end_time))
 
     # sort snakes by fitness
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
@@ -367,11 +367,16 @@ while generation < MAX_GENERATIONS:
     gen_fitness_roc = 0
     if gen_data[generation - 1]['gen_fitness']:
         gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
+    print("Generation analyzed and culled by fitness level")
 
-    # breed the next gen of snakes - BREEDING ALGORITHM v2
-    # (1 alpha clone + 5.0% alpha-alpha pairs + 95.0% random fit snake pairs)
-    alpha_clones = [alpha_snake.clone()] + [alpha_snake.breed(alpha_snake) for _ in range(math.floor(POPULATION_SIZE * 0.05))]
-    snakes = alpha_clones + [random.choice(fittest_snakes)[0].breed(random.choice(fittest_snakes)[0]) for _ in range(POPULATION_SIZE - len(alpha_clones))]
+    # breed the next gen of snakes - BREEDING ALGORITHM v3
+    # (1.0% alpha clones + 30.0% alpha-random pairs + remaining% random-random pairs)
+    start_time = time.time()
+    snakes = [alpha_snake.clone() for _ in range(math.floor(POPULATION_SIZE * 0.01))]
+    snakes = snakes + [alpha_snake.breed(random.choice(fittest_snakes)[0]) for _ in range(math.floor(POPULATION_SIZE * 0.30))]
+    snakes = snakes + [random.choice(fittest_snakes)[0].breed(random.choice(fittest_snakes)[0]) for _ in range(POPULATION_SIZE - len(snakes))]
+    end_time = round(time.time() - start_time, 2)
+    print("Generation finished breeding in {} seconds".format(end_time))
 
     # store & log generation results
     gen_data[generation] = {
