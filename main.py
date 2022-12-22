@@ -143,7 +143,7 @@ class Brain:
 
 class Snake:
     def __init__(self, start_coords, head_snake=None, color=None, brain=None):
-        self.rect = pygame.Rect(start_coords, (BLOCK_SIZE, BLOCK_SIZE))
+        self.rect = pygame.Rect(start_coords, (BLOCK_SIZE-2, BLOCK_SIZE-2))
         self.head_snake = head_snake
         self.brain = brain
         self.color = color
@@ -256,21 +256,13 @@ def manhatten_distance(x1, y1, x2, y2) -> float:
 
 
 def play_game(p_snake) -> Snake:
+    # initial game fruit
     fruit = Fruit(snake=p_snake)
-    while p_snake.tol > 0:
-        if SHOW_GRAPHICS:
-            # draw & display current frame
-            screen.fill(COLOR_BLACK)
-            p_snake.draw()
-            fruit.draw()
-            pygame.display.flip()
 
+    # play while snake is alive
+    while p_snake.tol > 0:
         # move snake
         p_snake.move(direction=p_snake.brain.decide(snake=p_snake, fruit=fruit))  # TODO rework this
-
-        # did the snake collide with itself?
-        if p_snake.on_self() or p_snake.on_wall():
-            break
 
         # did the snake eat the fruit?
         if p_snake.on_fruit():
@@ -278,11 +270,21 @@ def play_game(p_snake) -> Snake:
             fruit = Fruit(snake=p_snake)
             p_snake.tol += 100
 
+        # TODO draw & display current frame
+        if SHOW_GRAPHICS:
+            screen.fill(COLOR_BLACK)
+            p_snake.draw()
+            fruit.draw()
+            pygame.display.flip()
+            sleep(1 / 15)
+
+        # did the snake collide with itself?
+        if p_snake.on_self() or p_snake.on_wall():
+            break
+
         # advance frame
         p_snake.time_lived += 1
         p_snake.tol -= 1
-        if SHOW_GRAPHICS:
-            sleep(1/10)
 
     return p_snake
 
@@ -292,7 +294,7 @@ COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
-SHOW_GRAPHICS = False
+SHOW_GRAPHICS = True
 START_COORDS = (BLOCK_SIZE * 6, BLOCK_SIZE * 5)
 VELOCITIES = {
     'west': [BLOCK_SIZE, 0],
@@ -308,11 +310,11 @@ if SHOW_GRAPHICS:
     screen = pygame.display.set_mode(SCREEN_SIZE)
 
 # world constants
-POPULATION_SIZE = 2000
+POPULATION_SIZE = 3000
 MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.15
+BREEDING_THRESHOLD = 0.05
 MAX_GENERATIONS = 25
-BLUEPRINT_SNAKE_ID = 25475
+BLUEPRINT_SNAKE_ID = 59857
 
 # world vars
 _id = random.randint(10000, 99999)
@@ -334,6 +336,11 @@ if BLUEPRINT_SNAKE_ID:
     blueprint_brain.w_hidden_hidden = numpy.loadtxt('snake_data/{}/w_hidden_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_brain.w_hidden_output = numpy.loadtxt('snake_data/{}/w_hidden_output.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_snake = Snake(start_coords=START_COORDS, head_snake=None, brain=blueprint_brain)
+
+    if SHOW_GRAPHICS:
+        play_game(p_snake=blueprint_snake)
+        exit(0)
+
     snakes = [blueprint_snake.breed(blueprint_snake) for _ in range(POPULATION_SIZE)]
 else:
     # use completely randomized snakes
