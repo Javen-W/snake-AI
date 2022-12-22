@@ -108,13 +108,11 @@ class Brain:
             vision_rect = snake.rect.move(VELOCITIES[direction])
             distance += 1
 
-            # advance vision until a wall is reached
-            while vision_rect.left > 0 and vision_rect.top > 0 and vision_rect.right < SCREEN_WIDTH and vision_rect.bottom < SCREEN_HEIGHT:
-                # fruit
-                if (vision_rect.left, vision_rect.top) == (fruit.rect.left, fruit.rect.top):
-                    input_fruit = 1
+            # calculate fruit distance
 
-                # snake
+            # advance vision in direction to find self-collision and wall distances
+            while not out_of_bounds(vision_rect):
+                # snake collision
                 if snake.on_self(head_coords=(vision_rect.left, vision_rect.top)):
                     input_tail = 1 / distance
 
@@ -205,12 +203,6 @@ class Snake:
             return (head_coords == tail_coords) or self.tail_snake.on_self(head_coords=head_coords)
         return False
 
-    def on_wall(self):
-        return self.rect.left < 0 or \
-            self.rect.right > SCREEN_WIDTH or \
-            self.rect.top < 0 or \
-            self.rect.bottom > SCREEN_HEIGHT
-
     def on_fruit(self):
         fruit_coords = (Fruit.coords[0], Fruit.coords[1])
         snake_coords = (self.rect.left, self.rect.top)
@@ -263,6 +255,10 @@ def update_display(snake, fruit, fps):
     sleep(1/fps)
 
 
+def out_of_bounds(rect):
+    return rect.left < 0 or rect.left >= SCREEN_WIDTH or rect.top < 0 or rect.top >= SCREEN_HEIGHT
+
+
 def play_game(p_snake) -> Snake:
     # initial game fruit
     fruit = Fruit(snake=p_snake)
@@ -282,13 +278,13 @@ def play_game(p_snake) -> Snake:
             fruit = Fruit(snake=p_snake)
             p_snake.tol += 100
 
+        # did the snake collide with itself?
+        if p_snake.on_self() or out_of_bounds(p_snake.rect):
+            break
+
         # draw & display current frame
         if SHOW_GRAPHICS:
-            update_display(snake=p_snake, fruit=fruit, fps=15)
-
-        # did the snake collide with itself?
-        if p_snake.on_self() or p_snake.on_wall():
-            break
+            update_display(snake=p_snake, fruit=fruit, fps=0.8)
 
         # advance frame
         p_snake.time_lived += 1
@@ -305,14 +301,14 @@ SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 SHOW_GRAPHICS = True
 START_COORDS = (BLOCK_SIZE * 0, BLOCK_SIZE * 0)
 VELOCITIES = {
-    'west': [BLOCK_SIZE, 0],
-    'east': [-BLOCK_SIZE, 0],
+    'west': [-BLOCK_SIZE, 0],
+    'east': [BLOCK_SIZE, 0],
     'north': [0, -BLOCK_SIZE],
     'south': [0, BLOCK_SIZE],
-    'north-west': [BLOCK_SIZE, -BLOCK_SIZE],
-    'north-east': [-BLOCK_SIZE, -BLOCK_SIZE],
-    'south-west': [BLOCK_SIZE, BLOCK_SIZE],
-    'south-east': [-BLOCK_SIZE, BLOCK_SIZE],
+    'north-west': [-BLOCK_SIZE, -BLOCK_SIZE],
+    'north-east': [BLOCK_SIZE, -BLOCK_SIZE],
+    'south-west': [-BLOCK_SIZE, BLOCK_SIZE],
+    'south-east': [BLOCK_SIZE, BLOCK_SIZE],
 }
 if SHOW_GRAPHICS:
     screen = pygame.display.set_mode(SCREEN_SIZE)
