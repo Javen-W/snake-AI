@@ -255,9 +255,21 @@ def manhatten_distance(x1, y1, x2, y2) -> float:
     return abs(x1 - x2) + abs(y1 - y2)
 
 
+def update_display(snake, fruit, fps):
+    screen.fill(COLOR_BLACK)
+    snake.draw()
+    fruit.draw()
+    pygame.display.flip()
+    sleep(1/fps)
+
+
 def play_game(p_snake) -> Snake:
     # initial game fruit
     fruit = Fruit(snake=p_snake)
+
+    # draw & display initial frame
+    if SHOW_GRAPHICS:
+        update_display(snake=p_snake, fruit=fruit, fps=0.5)
 
     # play while snake is alive
     while p_snake.tol > 0:
@@ -270,13 +282,9 @@ def play_game(p_snake) -> Snake:
             fruit = Fruit(snake=p_snake)
             p_snake.tol += 100
 
-        # TODO draw & display current frame
+        # draw & display current frame
         if SHOW_GRAPHICS:
-            screen.fill(COLOR_BLACK)
-            p_snake.draw()
-            fruit.draw()
-            pygame.display.flip()
-            sleep(1 / 15)
+            update_display(snake=p_snake, fruit=fruit, fps=15)
 
         # did the snake collide with itself?
         if p_snake.on_self() or p_snake.on_wall():
