@@ -92,32 +92,39 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # calculate nn input metrics - INPUT METRIC ALGORITHM v1
+        # calculate nn input metrics - INPUT METRIC ALGORITHM v2
         for direction in VELOCITIES:
             distance = 0
-            input_fruit, input_tail, input_wall = 0, 0, 0
+            x_fruit, x_snake, x_wall = 0, 0, 0
 
             # advance vision
             vision_rect = snake.rect.move(VELOCITIES[direction])
             distance += 1
 
-            # calculate fruit distance
+            # calculate fruit distance metric
+            fruit_distance = block_distance(vision_rect, fruit.rect)
+            if not fruit_distance:
+                x_fruit = 1.0
+            else:
+                x_fruit = 1 / fruit_distance
 
-            # advance vision in direction to find self-collision and wall distances
+            # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
-                # snake collision
+                # calculate snake collision distance metric
                 if snake.on_self(head_coords=(vision_rect.left, vision_rect.top)):
-                    input_tail = 1 / distance
+                    x_snake = 1 / distance
 
-                # advance
+                # advance until out of bounds
                 vision_rect = vision_rect.move(VELOCITIES[direction])
                 distance += 1
 
-            # add direction input variables to input vector
-            input_wall = 1 / distance
-            nn_inputs.append(input_fruit)
-            nn_inputs.append(input_tail)
-            nn_inputs.append(input_wall)
+            # calculate wall distance metric
+            x_wall = 1 / distance
+
+            # add input metrics to nn input vector
+            nn_inputs.append(x_fruit)
+            nn_inputs.append(x_snake)
+            nn_inputs.append(x_wall)
 
         # process input metrics through nn and make directional decision
         nn_output = self.nn_process(nn_inputs)
