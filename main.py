@@ -20,7 +20,7 @@ class Fruit:
                 random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
             )
 
-        self.rect = pygame.Rect(Fruit.coords, (BLOCK_SIZE, BLOCK_SIZE))
+        self.rect = pygame.Rect(Fruit.coords, (BLOCK_SIZE-2, BLOCK_SIZE-2))
         self.color = (255, 0, 0)
 
     def draw(self):
