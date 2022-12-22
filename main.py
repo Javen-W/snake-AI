@@ -1,6 +1,7 @@
 import math
+import multiprocessing
 import os
-import sys
+import time
 from time import sleep
 import numpy.random
 import pygame
@@ -11,7 +12,7 @@ pygame.init()
 class Fruit:
     coords = None
 
-    def __init__(self):
+    def __init__(self, snake):
         Fruit.coords = (snake.rect.left, snake.rect.top)
         while snake.on_fruit():
             Fruit.coords = (
@@ -30,10 +31,6 @@ class Fruit:
             x, y,
             self.rect.left, self.rect.top
         )
-
-
-def manhatten_distance(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
 
 
 class Brain:
@@ -98,7 +95,7 @@ class Brain:
 
         return v_hidden_output
 
-    def decide(self):
+    def decide(self, snake, fruit):
         # the 24 input nodes
         nn_inputs = []
 
@@ -254,6 +251,42 @@ class Snake:
         return child_snake
 
 
+def manhatten_distance(x1, y1, x2, y2) -> float:
+    return abs(x1 - x2) + abs(y1 - y2)
+
+
+def play_game(p_snake) -> Snake:
+    fruit = Fruit(snake=p_snake)
+    while p_snake.tol > 0:
+        if SHOW_GRAPHICS:
+            # draw & display current frame
+            screen.fill(COLOR_BLACK)
+            p_snake.draw()
+            fruit.draw()
+            pygame.display.flip()
+
+        # move snake
+        p_snake.move(direction=p_snake.brain.decide(snake=p_snake, fruit=fruit))  # TODO rework this
+
+        # did the snake collide with itself?
+        if p_snake.on_self() or p_snake.on_wall():
+            break
+
+        # did the snake eat the fruit?
+        if p_snake.on_fruit():
+            p_snake.grow()
+            fruit = Fruit(snake=p_snake)
+            p_snake.tol += 100
+
+        # advance frame
+        p_snake.time_lived += 1
+        p_snake.tol -= 1
+        if SHOW_GRAPHICS:
+            sleep(1/10)
+
+    return p_snake
+
+
 # game constants
 COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
@@ -277,7 +310,7 @@ if SHOW_GRAPHICS:
 # world constants
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.25
+BREEDING_THRESHOLD = 0.15
 MAX_GENERATIONS = 25
 BLUEPRINT_SNAKE_ID = 25475
 
@@ -311,43 +344,14 @@ print("\n-- World begin --")
 while generation < MAX_GENERATIONS:
     # new generation
     generation += 1
+    start_time = time.time()
     print("Generation: {}".format(generation))
 
-    # natural selection of the snakes - test their survival
-    for i, snake in enumerate(snakes):
-        # event listeners
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-
-        # play game
-        fruit = Fruit()
-        while snake.tol > 0:
-            if SHOW_GRAPHICS:
-                # draw & display current frame
-                screen.fill(COLOR_BLACK)
-                snake.draw()
-                fruit.draw()
-                pygame.display.flip()
-
-            # move snake
-            snake.move(direction=snake.brain.decide())
-
-            # did the snake collide with itself?
-            if snake.on_self() or snake.on_wall():
-                break
-
-            # did the snake eat the fruit?
-            if snake.on_fruit():
-                snake.grow()
-                fruit = Fruit()
-                snake.tol += 100
-
-            # advance frame
-            snake.time_lived += 1
-            snake.tol -= 1
-            # sleep(10)
-            # sleep(1/10)
+    # test the fitness of each snake in the generation
+    with multiprocessing.Pool() as pool:
+        snakes = pool.map(play_game, snakes)
+    completion_time = round(time.time() - start_time, 2)
+    print("Fitness testing completed in {} seconds".format(completion_time))
 
     # sort snakes by fitness
     fittest_snakes = sorted({snake: snake.fitness() for snake in snakes}.items(), key=lambda kv: kv[1], reverse=True)[:math.floor(POPULATION_SIZE * BREEDING_THRESHOLD)]
