@@ -19,18 +19,11 @@ class Fruit:
                 random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
                 random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
             )
-
         self.rect = pygame.Rect(Fruit.coords, (BLOCK_SIZE-2, BLOCK_SIZE-2))
         self.color = (255, 0, 0)
 
     def draw(self):
         pygame.draw.rect(screen, self.color, self.rect)
-
-    def dist(self, x, y):
-        return manhatten_distance(
-            x, y,
-            self.rect.left, self.rect.top
-        )
 
 
 class Brain:
@@ -210,12 +203,6 @@ class Snake:
             return snake_coords == fruit_coords or self.tail_snake.on_fruit()
         return snake_coords == fruit_coords
 
-    def min_dist(self, x, y):
-        my_dist = manhatten_distance(x, y, self.rect.left, self.rect.top)
-        if self.tail_snake:
-            return min(my_dist, self.tail_snake.min_dist(x, y))
-        return my_dist
-
     def fitness(self):
         return ((self.size() - 1) * 200) + (self.time_lived % 201)
 
@@ -243,8 +230,8 @@ class Snake:
         return child_snake
 
 
-def manhatten_distance(x1, y1, x2, y2) -> float:
-    return abs(x1 - x2) + abs(y1 - y2)
+def block_distance(rect1, rect2) -> int:
+    return int(abs(rect1.left - rect2.left) + abs(rect1.top - rect2.top))
 
 
 def update_display(snake, fruit, fps):
