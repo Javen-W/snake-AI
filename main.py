@@ -292,7 +292,7 @@ COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
-SHOW_GRAPHICS = True
+SHOW_GRAPHICS = False
 START_COORDS = (BLOCK_SIZE * 0, BLOCK_SIZE * 0)
 VELOCITIES = {
     'west': [-BLOCK_SIZE, 0],
@@ -311,18 +311,18 @@ if SHOW_GRAPHICS:
 POPULATION_SIZE = 3000
 MUTATION_RATE = 0.01
 BREEDING_THRESHOLD = 0.05
-MAX_GENERATIONS = 25
-BLUEPRINT_SNAKE_ID = 59857
+MAX_GENERATIONS = 100
+BLUEPRINT_SNAKE_ID = None
 
 # world vars
 _id = random.randint(10000, 99999)
 generation = 0
 gen_data = {
     0: {
-        'gen_fitness': 0,
-        'gen_fitness_roc': 0,
-        'alpha_fitness': 0,
-        'alpha_size': 0,
+        'gen_fitness': None,
+        'gen_fitness_roc': None,
+        'alpha_fitness': None,
+        'alpha_size': None,
         'alpha_genetics': None,
     }
 }
@@ -364,7 +364,9 @@ while generation < MAX_GENERATIONS:
 
     # analyze generation results
     gen_fitness = round(sum([snake.fitness() for snake in snakes]) / POPULATION_SIZE, 2)
-    gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
+    gen_fitness_roc = 0
+    if gen_data[generation - 1]['gen_fitness']:
+        gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
 
     # breed the next gen of snakes - BREEDING ALGORITHM v2
     # (1 alpha clone + 5.0% alpha-alpha pairs + 95.0% random fit snake pairs)
