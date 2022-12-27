@@ -92,7 +92,7 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # calculate nn input metrics - INPUT METRIC ALGORITHM v2.1
+        # calculate nn input metrics - INPUT METRIC ALGORITHM v2.2
         for direction in VELOCITIES:
             distance = 0
             x_fruit, x_snake, x_wall = 0, 0, 0
@@ -102,11 +102,12 @@ class Brain:
             distance += 1
 
             # calculate fruit distance metric
-            fruit_distance = block_distance(vision_rect, fruit.rect)
-            if not fruit_distance:
-                x_fruit = 1.0
-            else:
-                x_fruit = 1.0 / fruit_distance
+            if not out_of_bounds(vision_rect):
+                fruit_distance = block_distance(vision_rect, fruit.rect)
+                if not fruit_distance:
+                    x_fruit = 1.0
+                else:
+                    x_fruit = 1.0 / fruit_distance
 
             # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
@@ -265,7 +266,7 @@ def play_game(snake) -> Snake:
     # draw & display initial frame
     if SHOW_GRAPHICS:
         print("\nSnake {} now playing".format(snake.color))
-        update_display(snake=snake, fruit=fruit, fps=0.5)
+        update_display(snake=snake, fruit=fruit, fps=5)
 
     # play while snake is alive
     while snake.tol > 0:
@@ -284,7 +285,7 @@ def play_game(snake) -> Snake:
 
         # draw & display current frame
         if SHOW_GRAPHICS:
-            update_display(snake=snake, fruit=fruit, fps=0.8)
+            update_display(snake=snake, fruit=fruit, fps=15)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit(0)
