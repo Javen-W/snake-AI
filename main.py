@@ -112,7 +112,7 @@ class Brain:
             # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
                 # calculate snake collision distance metric
-                if snake.on_self(head_coords=(vision_rect.left, vision_rect.top)):
+                if snake.on_self(rect=vision_rect):
                     x_snake = 1.0 / distance
 
                 # advance until out of bounds
@@ -144,15 +144,18 @@ class Brain:
 
 
 class Snake:
-    def __init__(self, start_coords, head_snake=None, color=None, brain=None):
-        self.rect = pygame.Rect(start_coords, (BLOCK_SIZE-2, BLOCK_SIZE-2))
+    def __init__(self, start_rect=None, head_snake=None, color=None, brain=None):
+        self.rect = start_rect
+        if not start_rect:
+            self.rect = pygame.Rect(START_COORDS, (BLOCK_SIZE-2, BLOCK_SIZE-2))
+
         self.head_snake = head_snake
         self.brain = brain
         self.color = color
 
         self.tail_snake = None
-        self.prev_dir = None  # TODO replace this with just prev_coords
-        self.prev_coords = None
+        self.prev_rect = None
+
         self.time_lived = 0
         self.tol = 200
 
@@ -162,7 +165,7 @@ class Snake:
             self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
 
     def clone(self):
-        return Snake(start_coords=START_COORDS, head_snake=None, color=self.color, brain=self.brain)
+        return Snake(head_snake=None, color=self.color, brain=self.brain)
 
     def grow(self):
         if self.tail_snake:
@@ -170,15 +173,17 @@ class Snake:
             self.tail_snake.grow()
         else:
             # this is the last snake
-            self.tail_snake = Snake(start_coords=self.prev_coords, head_snake=self, color=self.color, brain=None)
+            self.tail_snake = Snake(start_rect=self.prev_rect, head_snake=self, color=self.color, brain=None)
 
-    def move(self, direction):
+    def move(self, direction=None, new_rect=None):
         if direction:
-            self.prev_coords = (self.rect.left, self.rect.top)
-            self.rect = self.rect.move(VELOCITIES[direction])
-            if self.tail_snake:
-                self.tail_snake.move(self.prev_dir)
-            self.prev_dir = direction
+            new_rect = self.rect.move(VELOCITIES[direction])
+
+        self.prev_rect = self.rect
+        self.rect = new_rect
+
+        if self.tail_snake:
+            self.tail_snake.move(new_rect=self.prev_rect)
 
     def print(self):
         text = "<>~"
@@ -199,12 +204,11 @@ class Snake:
             return 1 + self.tail_snake.size()
         return 1
 
-    def on_self(self, head_coords=None):
-        if not head_coords:
-            head_coords = (self.rect.left, self.rect.top)
+    def on_self(self, rect):
         if self.tail_snake:
+            rect_coords = (rect.left, rect.top)
             tail_coords = (self.tail_snake.rect.left, self.tail_snake.rect.top)
-            return (head_coords == tail_coords) or self.tail_snake.on_self(head_coords=head_coords)
+            return (rect_coords == tail_coords) or self.tail_snake.on_self(rect=rect)
         return False
 
     def on_fruit(self):
@@ -236,7 +240,7 @@ class Snake:
         child_brain.w_hidden_output = Brain.mutate(mutation_rate=MUTATION_RATE, vector=child_brain.w_hidden_output)
 
         # create snake
-        child_snake = Snake(start_coords=START_COORDS, head_snake=None, color=child_color, brain=child_brain)
+        child_snake = Snake(head_snake=None, color=child_color, brain=child_brain)
 
         return child_snake
 
@@ -280,7 +284,7 @@ def play_game(snake) -> Snake:
             snake.tol += 100
 
         # did the snake collide with itself?
-        if snake.on_self() or out_of_bounds(snake.rect):
+        if snake.on_self(snake.rect) or out_of_bounds(snake.rect):
             break
 
         # draw & display current frame
@@ -311,7 +315,7 @@ COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 SHOW_GRAPHICS = True
-START_COORDS = (BLOCK_SIZE * 0, BLOCK_SIZE * 0)
+START_COORDS = (BLOCK_SIZE * 10, BLOCK_SIZE * 10)
 VELOCITIES = {
     'west': [-BLOCK_SIZE, 0],
     'east': [BLOCK_SIZE, 0],
@@ -329,7 +333,7 @@ if SHOW_GRAPHICS:
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
 BREEDING_THRESHOLD = 0.20
-MAX_GENERATIONS = 150
+MAX_GENERATIONS = 100
 BLUEPRINT_SNAKE_ID = None
 
 # world vars
@@ -351,11 +355,11 @@ if BLUEPRINT_SNAKE_ID:
     blueprint_brain.w_input_hidden = numpy.loadtxt('snake_data/{}/w_input_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_brain.w_hidden_hidden = numpy.loadtxt('snake_data/{}/w_hidden_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_brain.w_hidden_output = numpy.loadtxt('snake_data/{}/w_hidden_output.txt'.format(BLUEPRINT_SNAKE_ID))
-    blueprint_snake = Snake(start_coords=START_COORDS, head_snake=None, brain=blueprint_brain)
+    blueprint_snake = Snake(head_snake=None, brain=blueprint_brain)
     snakes = [blueprint_snake.breed(blueprint_snake) for _ in range(POPULATION_SIZE)]
 else:
     # use completely randomized snakes
-    snakes = [Snake(start_coords=START_COORDS, head_snake=None) for _ in range(POPULATION_SIZE)]
+    snakes = [Snake(head_snake=None) for _ in range(POPULATION_SIZE)]
 
 # begin world game
 print("\n-- World begin --")
