@@ -291,7 +291,6 @@ def play_game(snake) -> Snake:
 
         # draw & display current frame
         if SHOW_GRAPHICS:
-            update_display(snake=snake, fruit=fruit, fps=15)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit(0)
@@ -303,6 +302,7 @@ def play_game(snake) -> Snake:
                                 if event.type == pygame.KEYDOWN:
                                     if event.key == pygame.K_SPACE:
                                         paused = False
+            update_display(snake=snake, fruit=fruit, fps=15)
 
         # advance frame
         snake.time_lived += 1
