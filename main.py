@@ -92,7 +92,7 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # calculate nn input metrics - INPUT METRIC ALGORITHM v2
+        # calculate nn input metrics - INPUT METRIC ALGORITHM v2.1
         for direction in VELOCITIES:
             distance = 0
             x_fruit, x_snake, x_wall = 0, 0, 0
@@ -285,6 +285,17 @@ def play_game(snake) -> Snake:
         # draw & display current frame
         if SHOW_GRAPHICS:
             update_display(snake=snake, fruit=fruit, fps=0.8)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit(0)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        paused = True
+                        while paused:
+                            for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_SPACE:
+                                        paused = False
 
         # advance frame
         snake.time_lived += 1
@@ -314,10 +325,10 @@ if SHOW_GRAPHICS:
     screen = pygame.display.set_mode(SCREEN_SIZE)
 
 # world constants
-POPULATION_SIZE = 3000
+POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.10
-MAX_GENERATIONS = 3
+BREEDING_THRESHOLD = 0.20
+MAX_GENERATIONS = 150
 BLUEPRINT_SNAKE_ID = None
 
 # world vars
