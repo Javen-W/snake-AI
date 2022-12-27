@@ -311,7 +311,7 @@ if SHOW_GRAPHICS:
 POPULATION_SIZE = 3000
 MUTATION_RATE = 0.01
 BREEDING_THRESHOLD = 0.10
-MAX_GENERATIONS = 50
+MAX_GENERATIONS = 3
 BLUEPRINT_SNAKE_ID = None
 
 # world vars
@@ -396,6 +396,7 @@ while generation < MAX_GENERATIONS:
 # analyze world multi-generational results
 world_fitness = round(sum([gen_data[i]['gen_fitness'] for i in range(1, MAX_GENERATIONS + 1)]) / MAX_GENERATIONS, 2)
 world_fitness_roc = round(sum([gen_data[i]['gen_fitness_roc'] for i in range(1, MAX_GENERATIONS + 1)]) / MAX_GENERATIONS, 2)
+del gen_data[0]
 sigma_gen = sorted(gen_data.items(), key=lambda kv: kv[1]['alpha_fitness'], reverse=True)[0]
 
 # report results
