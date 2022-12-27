@@ -346,6 +346,7 @@ else:
 
 # begin world game
 print("\n-- World begin --")
+print("ID: {}\n".format(_id))
 while generation < MAX_GENERATIONS:
     # new generation
     generation += 1
@@ -367,7 +368,7 @@ while generation < MAX_GENERATIONS:
     gen_fitness_roc = 0
     if gen_data[generation - 1]['gen_fitness']:
         gen_fitness_roc = round(gen_fitness - gen_data[generation - 1]['gen_fitness'], 2)
-    print("Generation analyzed and culled by fitness level")
+    # print("Generation analyzed and culled by fitness level")
 
     # breed the next gen of snakes - BREEDING ALGORITHM v3
     # (1.0% alpha clones + 30.0% alpha-random pairs + remaining% random-random pairs)
