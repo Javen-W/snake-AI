@@ -10,16 +10,15 @@ pygame.init()
 
 
 class Fruit:
-    coords = None
-
     def __init__(self, snake):
-        Fruit.coords = (snake.rect.left, snake.rect.top)
-        while snake.on_fruit():
-            Fruit.coords = (
+        self.rect = snake.rect
+        while snake.on_body(rect=self.rect):
+            self.rect = pygame.Rect(
                 random.randint(0, (SCREEN_WIDTH / BLOCK_SIZE) - 1) * BLOCK_SIZE,
-                random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE
+                random.randint(0, (SCREEN_HEIGHT / BLOCK_SIZE) - 1) * BLOCK_SIZE,
+                BLOCK_SIZE - 2,
+                BLOCK_SIZE - 2,
             )
-        self.rect = pygame.Rect(Fruit.coords, (BLOCK_SIZE-2, BLOCK_SIZE-2))
         self.color = (255, 0, 0)
 
     def draw(self):
@@ -92,7 +91,7 @@ class Brain:
         # the 24 input nodes
         nn_inputs = []
 
-        # calculate nn input metrics - INPUT METRIC ALGORITHM v2.2
+        # calculate nn input metrics - INPUT METRIC ALGORITHM v2.3
         for direction in VELOCITIES:
             distance = 0
             x_fruit, x_snake, x_wall = 0, 0, 0
@@ -112,7 +111,8 @@ class Brain:
             # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
                 # calculate snake collision distance metric
-                if snake.on_self(rect=vision_rect):
+                if snake.on_body(rect=vision_rect) and not x_snake:
+                    print("vision on body for direction {} at distance {} with rect {}".format(direction, distance, (vision_rect.left, vision_rect.top)))
                     x_snake = 1.0 / distance
 
                 # advance until out of bounds
@@ -204,19 +204,19 @@ class Snake:
             return 1 + self.tail_snake.size()
         return 1
 
-    def on_self(self, rect):
-        if self.tail_snake:
-            rect_coords = (rect.left, rect.top)
-            tail_coords = (self.tail_snake.rect.left, self.tail_snake.rect.top)
-            return (rect_coords == tail_coords) or self.tail_snake.on_self(rect=rect)
-        return False
+    def on_body(self, rect=None):
+        if rect:
+            on_self = (rect.left, rect.top) == (self.rect.left, self.rect.top)
+        else:
+            # i must be my own head
+            rect = self.rect
+            on_self = False
 
-    def on_fruit(self):
-        fruit_coords = (Fruit.coords[0], Fruit.coords[1])
-        snake_coords = (self.rect.left, self.rect.top)
+        # print("Comparing rect({},{}) to self({},{})".format(rect.left, rect.top, self.rect.left, self.rect.top))
+
         if self.tail_snake:
-            return snake_coords == fruit_coords or self.tail_snake.on_fruit()
-        return snake_coords == fruit_coords
+            return on_self or self.tail_snake.on_body(rect=rect)
+        return on_self
 
     def fitness(self):
         return ((self.size() - 1) * 200) + (self.time_lived % 201)
@@ -278,16 +278,12 @@ def play_game(snake) -> Snake:
         snake.move(direction=snake.brain.decide(snake=snake, fruit=fruit))  # TODO rework this
 
         # did the snake eat the fruit?
-        if snake.on_fruit():
+        if snake.on_body(rect=fruit.rect):
             snake.grow()
             fruit = Fruit(snake=snake)
             snake.tol += 100
         elif snake.size() < MIN_SNAKE_SIZE:
             snake.grow()
-
-        # did the snake collide with itself?
-        if snake.on_self(snake.rect) or out_of_bounds(snake.rect):
-            break
 
         # draw & display current frame
         if SHOW_GRAPHICS:
@@ -303,6 +299,10 @@ def play_game(snake) -> Snake:
                                     if event.key == pygame.K_SPACE:
                                         paused = False
             update_display(snake=snake, fruit=fruit, fps=15)
+
+        # did the snake collide with itself?
+        if snake.on_body() or out_of_bounds(snake.rect):
+            break
 
         # advance frame
         snake.time_lived += 1
