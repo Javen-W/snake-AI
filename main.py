@@ -282,6 +282,8 @@ def play_game(snake) -> Snake:
             snake.grow()
             fruit = Fruit(snake=snake)
             snake.tol += 100
+        elif snake.size() < MIN_SNAKE_SIZE:
+            snake.grow()
 
         # did the snake collide with itself?
         if snake.on_self(snake.rect) or out_of_bounds(snake.rect):
@@ -313,6 +315,7 @@ def play_game(snake) -> Snake:
 COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
+MIN_SNAKE_SIZE = 4
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
 SHOW_GRAPHICS = True
 START_COORDS = (BLOCK_SIZE * 10, BLOCK_SIZE * 10)
