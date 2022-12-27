@@ -106,20 +106,20 @@ class Brain:
             if not fruit_distance:
                 x_fruit = 1.0
             else:
-                x_fruit = 1 / fruit_distance
+                x_fruit = 1.0 / fruit_distance
 
             # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
                 # calculate snake collision distance metric
                 if snake.on_self(head_coords=(vision_rect.left, vision_rect.top)):
-                    x_snake = 1 / distance
+                    x_snake = 1.0 / distance
 
                 # advance until out of bounds
                 vision_rect = vision_rect.move(VELOCITIES[direction])
                 distance += 1
 
             # calculate wall distance metric
-            x_wall = 1 / distance
+            x_wall = 1.0 / distance
 
             # add input metrics to nn input vector
             nn_inputs.append(x_fruit)
@@ -129,6 +129,9 @@ class Brain:
         # process input metrics through nn and make directional decision
         nn_output = self.nn_process(nn_inputs)
         highest_node = nn_output.index(max([row[0] for row in nn_output]))
+        if SHOW_GRAPHICS:
+            print("Input values: {}".format([round(n, 6) for n in nn_inputs]))
+            print("Output values: {}".format([round(n[0], 6) for n in nn_output]))
         if highest_node == 0:
             return 'west'
         elif highest_node == 1:
@@ -238,7 +241,7 @@ class Snake:
 
 
 def block_distance(rect1, rect2) -> int:
-    return int(abs(rect1.left - rect2.left) + abs(rect1.top - rect2.top))
+    return int((abs(rect1.left - rect2.left) + abs(rect1.top - rect2.top)) / BLOCK_SIZE)
 
 
 def update_display(snake, fruit, fps):
@@ -246,6 +249,8 @@ def update_display(snake, fruit, fps):
     snake.draw()
     fruit.draw()
     pygame.display.flip()
+    print("\nSnake coords: {}, {}".format(snake.rect.left, snake.rect.top))
+    print("Fruit coords: {}, {}".format(fruit.rect.left, fruit.rect.top))
     sleep(1/fps)
 
 
@@ -253,38 +258,39 @@ def out_of_bounds(rect):
     return rect.left < 0 or rect.left >= SCREEN_WIDTH or rect.top < 0 or rect.top >= SCREEN_HEIGHT
 
 
-def play_game(p_snake) -> Snake:
+def play_game(snake) -> Snake:
     # initial game fruit
-    fruit = Fruit(snake=p_snake)
+    fruit = Fruit(snake=snake)
 
     # draw & display initial frame
     if SHOW_GRAPHICS:
-        update_display(snake=p_snake, fruit=fruit, fps=0.5)
+        print("\nSnake {} now playing".format(snake.color))
+        update_display(snake=snake, fruit=fruit, fps=0.5)
 
     # play while snake is alive
-    while p_snake.tol > 0:
+    while snake.tol > 0:
         # move snake
-        p_snake.move(direction=p_snake.brain.decide(snake=p_snake, fruit=fruit))  # TODO rework this
+        snake.move(direction=snake.brain.decide(snake=snake, fruit=fruit))  # TODO rework this
 
         # did the snake eat the fruit?
-        if p_snake.on_fruit():
-            p_snake.grow()
-            fruit = Fruit(snake=p_snake)
-            p_snake.tol += 100
+        if snake.on_fruit():
+            snake.grow()
+            fruit = Fruit(snake=snake)
+            snake.tol += 100
 
         # did the snake collide with itself?
-        if p_snake.on_self() or out_of_bounds(p_snake.rect):
+        if snake.on_self() or out_of_bounds(snake.rect):
             break
 
         # draw & display current frame
         if SHOW_GRAPHICS:
-            update_display(snake=p_snake, fruit=fruit, fps=0.8)
+            update_display(snake=snake, fruit=fruit, fps=0.8)
 
         # advance frame
-        p_snake.time_lived += 1
-        p_snake.tol -= 1
+        snake.time_lived += 1
+        snake.tol -= 1
 
-    return p_snake
+    return snake
 
 
 # game constants
@@ -292,7 +298,7 @@ COLOR_BLACK = 0, 0, 0
 COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
-SHOW_GRAPHICS = False
+SHOW_GRAPHICS = True
 START_COORDS = (BLOCK_SIZE * 0, BLOCK_SIZE * 0)
 VELOCITIES = {
     'west': [-BLOCK_SIZE, 0],
@@ -334,11 +340,6 @@ if BLUEPRINT_SNAKE_ID:
     blueprint_brain.w_hidden_hidden = numpy.loadtxt('snake_data/{}/w_hidden_hidden.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_brain.w_hidden_output = numpy.loadtxt('snake_data/{}/w_hidden_output.txt'.format(BLUEPRINT_SNAKE_ID))
     blueprint_snake = Snake(start_coords=START_COORDS, head_snake=None, brain=blueprint_brain)
-
-    if SHOW_GRAPHICS:
-        play_game(p_snake=blueprint_snake)
-        exit(0)
-
     snakes = [blueprint_snake.breed(blueprint_snake) for _ in range(POPULATION_SIZE)]
 else:
     # use completely randomized snakes
@@ -354,8 +355,13 @@ while generation < MAX_GENERATIONS:
     print("Generation: {}".format(generation))
 
     # test the fitness of each snake in the generation
-    with multiprocessing.Pool() as pool:
-        snakes = pool.map(play_game, snakes)
+    if SHOW_GRAPHICS:
+        # run sync with graphics
+        snakes = [play_game(snake) for snake in snakes]
+    else:
+        # run async without graphics
+        with multiprocessing.Pool() as pool:
+            snakes = pool.map(play_game, snakes)
     end_time = round(time.time() - start_time, 2)
     print("Fitness testing completed in {} seconds".format(end_time))
 
