@@ -30,6 +30,28 @@ epsilon = 0.1  # exploration rate
 max_iterations = 1000  # max number of moves?
 q_table = np.zeros((state_space, action_space))  # state-action table
 
+
+def get_current_state(snake, fruit):
+    # Get the current position of the snake's head
+    head_x, head_y = snake.x, snake.y
+
+    # Get the position of the fruit
+    fruit_x, fruit_y = fruit.x, fruit.y
+
+    # Get the positions of the rest of the snake body
+    body_positions = snake.body[1:]
+
+    # Convert the head, fruit, and body positions to state indices
+    head_state = head_x // block_size + head_y // block_size * 20
+    fruit_state = fruit_x // block_size + fruit_y // block_size * 20
+    body_states = [pos[0] // block_size + pos[1] // block_size * 20 for pos in body_positions]
+
+    # Concatenate the head, fruit, and body state indices to form the current state
+    state = (head_state, fruit_state, tuple(body_states))
+
+    return state
+
+
 # Define the Snake class
 class Snake:
     def __init__(self):
