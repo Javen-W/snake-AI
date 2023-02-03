@@ -101,19 +101,22 @@ class Brain:
             distance += 1
 
             # calculate fruit distance metric
-            if not out_of_bounds(vision_rect):
-                fruit_distance = block_distance(vision_rect, fruit.rect)
-                if not fruit_distance:
-                    x_fruit = 1.0
-                else:
-                    x_fruit = 1.0 / fruit_distance
+            # if not out_of_bounds(vision_rect):
+            #     fruit_distance = block_distance(vision_rect, fruit.rect)
+            #     if not fruit_distance:
+            #         x_fruit = 1.0
+            #     else:
+            #         x_fruit = 1.0 / fruit_distance
 
             # calculate distances to self-collision and wall in this direction
             while not out_of_bounds(vision_rect):
                 # calculate snake collision distance metric
                 if snake.on_body(rect=vision_rect) and not x_snake:
-                    print("vision on body for direction {} at distance {} with rect {}".format(direction, distance, (vision_rect.left, vision_rect.top)))
                     x_snake = 1.0 / distance
+
+                # TEST Todo
+                if snake.on_body(rect=fruit.rect) and not x_fruit:
+                    x_fruit = 1.0
 
                 # advance until out of bounds
                 vision_rect = vision_rect.move(VELOCITIES[direction])
@@ -162,7 +165,7 @@ class Snake:
         if not color:
             self.color = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
         if not head_snake and not brain:
-            self.brain = Brain(n_input=24, n_hidden=18, n_output=4)
+            self.brain = Brain(n_input=24, n_hidden=48, n_output=4)
 
     def clone(self):
         return Snake(head_snake=None, color=self.color, brain=self.brain)
@@ -317,7 +320,7 @@ COLOR_WHITE = 255, 255, 255
 BLOCK_SIZE = 30
 MIN_SNAKE_SIZE = 4
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
-SHOW_GRAPHICS = True
+SHOW_GRAPHICS = False
 START_COORDS = (BLOCK_SIZE * 10, BLOCK_SIZE * 10)
 VELOCITIES = {
     'west': [-BLOCK_SIZE, 0],
@@ -335,8 +338,8 @@ if SHOW_GRAPHICS:
 # world constants
 POPULATION_SIZE = 2000
 MUTATION_RATE = 0.01
-BREEDING_THRESHOLD = 0.20
-MAX_GENERATIONS = 100
+BREEDING_THRESHOLD = 0.25
+MAX_GENERATIONS = 50
 BLUEPRINT_SNAKE_ID = None
 
 # world vars
