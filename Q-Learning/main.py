@@ -9,6 +9,7 @@ pygame.init()
 # Set up the window
 block_size = 30
 width = height = 20 * block_size
+map_blocks = (width * height) / block_size
 window = pygame.display.set_mode((width, height))
 
 # Set up the clock
@@ -20,6 +21,14 @@ green = (0, 255, 0)
 red = (255, 0, 0)
 white = (255, 255, 255)
 
+# Q-Learning parameters
+state_space = map_blocks * map_blocks  # possible states: head position, fruit position, body positions
+action_space = 4  # left, right, up, down
+alpha = 0.1  # learning rate
+gamma = 0.9  # discount factor
+epsilon = 0.1  # exploration rate
+max_iterations = 1000  # max number of moves?
+q_table = np.zeros((state_space, action_space))  # state-action table
 
 # Define the Snake class
 class Snake:
