@@ -8,8 +8,8 @@ pygame.init()
 
 # Set up the window
 block_size = 30
-width = height = 20 * block_size
-map_blocks = (width * height) / block_size
+width = height = 10 * block_size
+map_blocks = (width * height) // block_size
 window = pygame.display.set_mode((width, height))
 
 # Set up the clock
@@ -42,9 +42,9 @@ def get_current_state(snake, fruit):
     body_positions = snake.body[1:]
 
     # Convert the head, fruit, and body positions to state indices
-    head_state = head_x // block_size + head_y // block_size * 20
-    fruit_state = fruit_x // block_size + fruit_y // block_size * 20
-    body_states = [pos[0] // block_size + pos[1] // block_size * 20 for pos in body_positions]
+    head_state = head_x // block_size + head_y // block_size * 10
+    fruit_state = fruit_x // block_size + fruit_y // block_size * 10
+    body_states = [pos[0] // block_size + pos[1] // block_size * 10 for pos in body_positions]
 
     # Concatenate the head, fruit, and body state indices to form the current state
     state = (head_state, fruit_state, tuple(body_states))
@@ -122,16 +122,8 @@ while True:
             pygame.quit()
             sys.exit()
 
-    # key events
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        snake.direction = "left"
-    if keys[pygame.K_RIGHT]:
-        snake.direction = "right"
-    if keys[pygame.K_UP]:
-        snake.direction = "up"
-    if keys[pygame.K_DOWN]:
-        snake.direction = "down"
+    # game state
+    print(get_current_state(snake=snake, fruit=food))
 
     # end the game if the snake died
     if not snake.is_alive:
@@ -143,10 +135,23 @@ while True:
         snake.score = snake.size
         food = Food(snake=snake)
 
+    # key events
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        snake.direction = "left"
+    if keys[pygame.K_RIGHT]:
+        snake.direction = "right"
+    if keys[pygame.K_UP]:
+        snake.direction = "up"
+    if keys[pygame.K_DOWN]:
+        snake.direction = "down"
+
+    # move
+    snake.move()
+
     # draw
     window.fill(black)
     food.draw(window)
-    snake.move()
     snake.draw(window)
     font = pygame.font.Font(None, 30)
     score_text = font.render("Score: " + str(snake.score), True, white)
