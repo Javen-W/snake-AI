@@ -131,6 +131,8 @@ class Game:
             q_table[current_state, action] = q_table[current_state, action] + alpha * (
                         reward + gamma * np.max(q_table[new_state, :]) - q_table[current_state, action])
 
+        return self.snake.score
+
     def execute_action(self, action):
         # init reward
         reward = 0
@@ -188,7 +190,11 @@ class Game:
 def main():
     for iteration in range(max_iterations):
         game = Game()
-        game.play()
+        score = game.play()
+        print("Game #{} finished with score: {}".format(iteration, score))
+
+    print("Training complete.")
+    print(q_table)
 
 
 if __name__ == "__main__":
