@@ -113,13 +113,23 @@ class Game:
                     sys.exit()
 
             # decide action
-            action = None
+            current_state = self.get_current_state()
+            if random.uniform(0, 1) < epsilon:
+                # Choose a random action
+                action = random.choice(range(action_space))
+            else:
+                # Choose the action with the highest expected reward
+                action = np.argmax(q_table[current_state, :])
 
             # execute action and collect reward
             reward = self.execute_action(action)
 
             # get new state
             new_state = self.get_current_state()
+
+            # Update the Q-table based on the observed reward and the maximum expected reward for the new state
+            q_table[current_state, action] = q_table[current_state, action] + alpha * (
+                        reward + gamma * np.max(q_table[new_state, :]) - q_table[current_state, action])
 
     def execute_action(self, action):
         # init reward
@@ -174,3 +184,12 @@ class Game:
 
         return state
 
+
+def main():
+    for iteration in range(max_iterations):
+        game = Game()
+        game.play()
+
+
+if __name__ == "__main__":
+    main()
